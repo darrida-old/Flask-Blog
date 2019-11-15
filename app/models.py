@@ -10,14 +10,33 @@ import bleach
 from app.exceptions import ValidationError
 
 
+class Tag(db.Model):
+    __tablename__ = 'tags'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(48))
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+class postTag(db.Model):
+    __tablename = 'posttags'
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'),
+                            primary_key=True)
+    tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'),
+                            primary_key=True)
+    date_created = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(256))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    timestamp_edited = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     body_html = db.Column(db.Text)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    tags = db.relationship('postTag', backref='posttags', lazy='dynamic')
     
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
