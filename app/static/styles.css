@@ -31,6 +31,10 @@ div.post-date {
 div.post-author {
     font-weight: bold;
 }
+div.post-title {
+    font-size: 120%;
+    font-weight: bold;
+}
 div.post-thumbnail {
     position: absolute;
 }
