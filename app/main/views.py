@@ -100,13 +100,37 @@ def moderate_disable(id):
 #    return render_template('post.html', posts=[post])
 
 
+@main.route('/edit/', methods=['GET', 'POST'])
+@login_required
+def create():
+    post = Post()
+    form = PostForm()
+    if current_user.can(Permission.WRITE) and form.validate_on_submit():
+        post = Post(title=form.title.data, body=form.body.data,
+                    author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.commit()
+        flash('The post has been created.')
+        return redirect(url_for('.post', id=post.id))  
+    #if form.validate_on_submit():
+    #    post.title = form.title.data
+    #    post.body = form.body.data
+    #    db.session.add(post)
+    #    db.session.commit()
+    #    flash('The post has been created.')
+    #    return redirect(url_for('.post', id=post.id))
+    #form.title.data = ""
+    #form.body.data = ""
+    return render_template('create_post.html', form=form)
+
+
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
     post = Post.query.get_or_404(id)
     if current_user != post.author and \
             not current_user.can(Permission.ADMIN):
-        abort(403)
+        abort(403)   
     form = PostForm()
     if form.validate_on_submit():
         post.title = form.title.data
@@ -118,6 +142,9 @@ def edit(id):
     form.title.data = post.title
     form.body.data = post.body
     return render_template('edit_post.html', form=form)
+
+
+
   
     #form = NameForm()
     #if form.validate_on_submit():
