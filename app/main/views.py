@@ -12,14 +12,13 @@ from ..decorators import admin_required, permission_required
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    form = PostForm()
-    if current_user.can(Permission.WRITE) and form.validate_on_submit():
-        post = Post(title=form.title.data, body=form.body.data,
-                    author=current_user._get_current_object())
-        db.session.add(post)
-        db.session.commit()
-        return redirect(url_for('.index'))
-    #posts = Post.query.order_by(Post.timestamp.desc()).all()
+    #form = PostForm()
+    #if current_user.can(Permission.WRITE) and form.validate_on_submit():
+    #    post = Post(title=form.title.data, body=form.body.data,
+    #                author=current_user._get_current_object())
+    #    db.session.add(post)
+    #    db.session.commit()
+    #    return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user.is_authenticated:
@@ -32,8 +31,9 @@ def index():
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
     posts = pagination.items
-    return render_template('index.html', form=form, posts=posts,
-                           show_followed=show_followed, pagination=pagination)
+    return render_template('index.html', posts=posts,
+                           show_followed=show_followed, pagination=pagination)#,
+                           #form=form)
 
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
