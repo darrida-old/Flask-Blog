@@ -42,10 +42,13 @@ class Post(db.Model):
     def on_changed_body(target, value, oldvalue, initiator):
         allowed_tags = ['a', 'abbr', 'acronym', 'b', 'blockquote', 'code',
                          'em', 'i', 'li', 'ol', 'pre', 'strong', 'ul', 'h1',
-                         'h2', 'h3', 'p']
+                         'h2', 'h3', 'p', 'img', 'href']
+        allowed_attributes = {'*': ['class', 'id'], 'a': ['href', 'title'],
+                              'abbr': ['title'], 'acronym': ['title'],
+                              'img': ['src', 'alt']}
         target.body_html = bleach.linkify(bleach.clean(
                 markdown(value, output_format='html'),
-                tags=allowed_tags, strip=True))
+                tags=allowed_tags, attributes=allowed_attributes, strip=True))
         
     def to_json(self):
         json_post = {
@@ -165,12 +168,13 @@ class Role(db.Model):
     @staticmethod
     def insert_roles():
         roles = {
-            'User': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
+            'User': [Permission.FOLLOW, Permission.COMMENT],
+            'Writer': [Permission.FOLLOW, Permission.COMMENT, Permission.WRITE],
             'Moderator': [Permission.FOLLOW, Permission.COMMENT,
                           Permission.WRITE, Permission.MODERATE],
             'Administrator': [Permission.FOLLOW, Permission.COMMENT,
                               Permission.WRITE, Permission.MODERATE,
-                              Permission.ADMIN],
+                              Permission.ADMIN]
         }
         default_role = 'User'
         for r in roles:
