@@ -5,6 +5,9 @@
     margin-left: auto;
     max-width: 750px;
 }
+img[src*="post-image-large"] {
+   max-width:625px;
+}
 .profile-thumbnail {
     position: absolute;
 }
