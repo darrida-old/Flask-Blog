@@ -1,3 +1,13 @@
+.container {
+    padding-right: 15px;
+    padding-left: 15px;
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 750px;
+}
+img[src*="post-image-large"] {
+   max-width:625px;
+}
 .profile-thumbnail {
     position: absolute;
 }
@@ -29,6 +39,10 @@ div.post-date {
     float: right;
 }
 div.post-author {
+    font-weight: bold;
+}
+div.post-title {
+    font-size: 120%;
     font-weight: bold;
 }
 div.post-thumbnail {
