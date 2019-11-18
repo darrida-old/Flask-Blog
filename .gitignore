@@ -123,3 +123,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+migrations/versions/aaab90d83e4c_.py
