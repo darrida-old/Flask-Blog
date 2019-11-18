@@ -69,7 +69,14 @@ def profile(length, profile_dir):
 def deploy():
     """Run deployment tasks."""
     # migrate database to latest revision
-    upgrade()
+    try:
+        upgrade()
+    except:
+        from app import db
+        db.create_all()
+        db.session.commit()
+        os.system("flask db init")
+        upgrade()
 
     # create or update user roles
     Role.insert_roles()
