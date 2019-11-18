@@ -1,3 +1,7 @@
+# sqllit3
+data-dev.sqlite
+data.sqlite
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -20,6 +24,7 @@ parts/
 sdist/
 var/
 wheels/
+migrations/
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
