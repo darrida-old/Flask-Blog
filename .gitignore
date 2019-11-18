@@ -1,3 +1,6 @@
+# SQLite
+*.sqlite
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -123,3 +126,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+migrations/versions/aaab90d83e4c_.py
