@@ -128,15 +128,17 @@ def create():
     post = Post()
     title = None
     form = PostForm()
-    if current_user.can(Permission.WRITE) and form.validate_on_submit():
-        post = Post(title=form.title.data, body=form.body.data,
-                    author=current_user._get_current_object())
-        #post = Post(title=request.form['post_title'], body=simplemde.value(),
-        #            author=current_user.get_current_object)
-        db.session.add(post)
-        db.session.commit()
-        flash('The post has been created.')
-        return redirect(url_for('.post', id=post.id))  
+    if request.method == 'POST':
+        if current_user.can(Permission.WRITE) and form.validate_on_submit():
+            post = Post(title=request.form['title'],#form.title.data,
+                        body=request.form['post_content'],#form.body.data,
+                        author=current_user._get_current_object())
+            #post = Post(title=request.form['post_title'], body=simplemde.value(),
+            #            author=current_user.get_current_object)
+            db.session.add(post)
+            db.session.commit()
+            flash('The post has been created.')
+            return redirect(url_for('.post', id=post.id))  
     #if form.validate_on_submit():
     #    post.title = form.title.data
     #    post.body = form.body.data
