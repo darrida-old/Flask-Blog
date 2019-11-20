@@ -8,11 +8,26 @@
     <h1>Create Post</h1>
 </div>
 <div>
-    {{ wtf.quick_form(form) }}
+
+    {{ wtf.quick_form(form) }}  
+    
+    <form method='post'>
+      <textarea class="form-control" id="markdown" name="post_content"></textarea>
+      <div>
+        <input class='btn btn-default' onclick="" id='submit' name='submit' type='submit' value='Save'>
+        <input class='btn btn-default' id='publish' name='publish' type='submit' value='Publish'>
+    </div>
+    </form>
+    
 </div>
+
+<script type='text/javascript'>
+      var simplemde = new SimpleMDE({ element: document.getElementById('markdown') });
+</script>
 {% endblock %}
+
+
 
 {% block scripts %}
 {{ super() }}
-{{ pagedown.include_pagedown() }}
 {% endblock %}

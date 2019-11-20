@@ -6,6 +6,7 @@ from flask_sqlalchemy import SQLAlchemy
 from config import config
 from flask_login import LoginManager
 from flask_pagedown import PageDown
+from flask_simplemde import SimpleMDE
 
 pagedown = PageDown()
 bootstrap = Bootstrap()
@@ -28,6 +29,7 @@ def create_app(config_name):
     db.init_app(app)
     login_manager.init_app(app)
     pagedown.init_app(app)
+    SimpleMDE(app)
     
     if app.config['SSL_REDIRECT']:
         from flask_sslify import SSLify

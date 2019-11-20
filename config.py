@@ -19,6 +19,8 @@ class Config:
     FLASKY_FOLLOWERS_PER_PAGE = 20
     FLASKY_COMMENTS_PER_PAGE = 20
     FLASKY_SLOW_DB_QUERY_TIME = 0.5
+    SIMPLEMDE_JS_IIFE = True
+    SIMPLEMDE_USE_CDN = True
     SSL_REDIRECT = False
     
     @staticmethod
@@ -28,6 +30,7 @@ class Config:
     
 class DevelopmentConfig(Config):
     DEBUG = True
+    SERVER_NAME = 'localhost:5000'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
         

@@ -126,10 +126,13 @@ def moderate_disable(id):
 @login_required
 def create():
     post = Post()
+    title = None
     form = PostForm()
     if current_user.can(Permission.WRITE) and form.validate_on_submit():
         post = Post(title=form.title.data, body=form.body.data,
                     author=current_user._get_current_object())
+        #post = Post(title=request.form['post_title'], body=simplemde.value(),
+        #            author=current_user.get_current_object)
         db.session.add(post)
         db.session.commit()
         flash('The post has been created.')
@@ -143,7 +146,7 @@ def create():
     #    return redirect(url_for('.post', id=post.id))
     #form.title.data = ""
     #form.body.data = ""
-    return render_template('create_post.html', form=form)
+    return render_template('create_post.html', form=form, title=title)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])

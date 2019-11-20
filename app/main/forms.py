@@ -9,7 +9,8 @@ from flask_pagedown.fields import PageDownField
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
-    body = PageDownField("What's on your mind?", validators=[Required()])
+    body = TextAreaField("What's on your mind?")#, validators=[Required()])
+    #body = PageDownField("What's on your mind?", validators=[Required()])
     submit = SubmitField('Submit')
 
 
