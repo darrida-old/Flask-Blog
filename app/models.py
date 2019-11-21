@@ -35,6 +35,7 @@ class Post(db.Model):
     timestamp_edited = db.Column(db.DateTime, index=True, default=datetime.utcnow)
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     body_html = db.Column(db.Text)
+    published = db.Column(db.Boolean, default=False)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     tags = db.relationship('postTag', backref='posttags', lazy='dynamic')
     

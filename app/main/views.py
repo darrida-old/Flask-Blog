@@ -26,7 +26,7 @@ def index():
     if show_followed:
         query = current_user.followed_posts
     else:
-        query = Post.query
+        query = Post.query.filter_by(published=1)
     pagination = query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
@@ -126,34 +126,45 @@ def moderate_disable(id):
 @login_required
 def create():
     post = Post()
-    title = None
     form = PostForm()
-    if request.method == 'POST':
-        if current_user.can(Permission.WRITE) and form.validate_on_submit():
-            post = Post(title=request.form['title'],#form.title.data,
-                        body=request.form['post_content'],#form.body.data,
-                        author=current_user._get_current_object())
-            #post = Post(title=request.form['post_title'], body=simplemde.value(),
-            #            author=current_user.get_current_object)
-            db.session.add(post)
-            db.session.commit()
-            flash('The post has been created.')
-            return redirect(url_for('.post', id=post.id))  
-    #if form.validate_on_submit():
-    #    post.title = form.title.data
-    #    post.body = form.body.data
-    #    db.session.add(post)
-    #    db.session.commit()
-    #    flash('The post has been created.')
-    #    return redirect(url_for('.post', id=post.id))
-    #form.title.data = ""
-    #form.body.data = ""
-    return render_template('create_post.html', form=form, title=title)
+    if request.method == 'POST' and current_user.can(Permission.WRITE):
+        post = Post(title=request.form['title'],
+                    body=request.form['body'],
+                    published=(0 if request.form['submit']=='Save' else 1),
+                    author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.commit()
+        flash('The post has been created.')
+        return redirect(url_for('.post', id=post.id))
+    return render_template('create_post.html', form=form)
 
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
+    form = None
+    post = Post.query.get_or_404(id)
+    if current_user != post.author and \
+            not current_user.can(Permission.ADMIN):
+        abort(403)   
+    form = PostForm()
+    if request.method == 'POST' and current_user.can(Permission.WRITE):
+        post.title=request.form['title']
+        post.body=request.form['body']
+        post.published=(0 if request.form['submit']=='Save' else 1)
+        db.session.add(post)
+        db.session.commit()
+        flash('The post has been updated.')
+        return redirect(url_for('.post', id=post.id))
+    #form = PostForm(request.form)#, title=post.title, body=post.body)
+    form.title.data = post.title
+    form.body.data = post.body
+    return render_template('edit_post.html', action="Edit", form=form)
+
+
+@main.route('/edit_bak/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_bak(id):
     post = Post.query.get_or_404(id)
     if current_user != post.author and \
             not current_user.can(Permission.ADMIN):

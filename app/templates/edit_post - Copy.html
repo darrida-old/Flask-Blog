@@ -1,23 +1,20 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Create Post{% endblock %}
+{% block title %}Flasky - Edit Post{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Create Post</h1>
+    <h1>Edit Post</h1>
 </div>
 <div>
-
-    {{ wtf.quick_form(form) }}  
-    
     <form method='post'>
       {{ form.csrf_token }}
-      <textarea class="form-control" name="title"></textarea>
-      <textarea class="form-control" id="markdown" name="post_content"></textarea>
+      <b>What am I called?</b> <input type="text" class="form-control" name="title"><br>
+      <b>Tell me a story</b> <textarea class="form-control" id="markdown" name="body"></textarea>
       <div>
         <input class='btn btn-default' onclick="" id='submit' name='submit' type='submit' value='Save'>
-        <input class='btn btn-default' id='publish' name='publish' type='submit' value='Publish'>
+        <input class='btn btn-default' onclidk="" id='publish' name='submit' type='submit' value='Publish'>
     </div>
     </form>
     
@@ -28,8 +25,7 @@
 </script>
 {% endblock %}
 
-
-
 {% block scripts %}
 {{ super() }}
+{{ pagedown.include_pagedown() }}
 {% endblock %}
