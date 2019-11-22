@@ -24,6 +24,9 @@ ul.posts {
     margin: 16px 0px 0px 0px;
     border-top: 1px solid #e0e0e0;
 }
+span.right-align {
+  text-align: right;
+}
 div.post-tabs ul.posts {
     margin: 0px;
     border-top: none;
