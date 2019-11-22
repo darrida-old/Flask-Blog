@@ -1,32 +1,38 @@
 {% extends "base.html" %}
 {% import "bootstrap/wtf.html" as wtf %}
 
-{% block title %}Flasky - Create Post{% endblock %}
+{% block title %}Theogeek - {{ action }} Post{% endblock %}
 
 {% block page_content %}
 <div class="page-header">
-    <h1>Create Post</h1>
+    <h1>{{ action }} Post</h1>
 </div>
-<div>
-    <form method='post'>
-      {{ form.csrf_token }}
-      <b>What am I called?</b> <input type="text" class="form-control" name="title"><br>
-      <b>Tell me a story</b> <textarea class="form-control" id="markdown" name="body"></textarea>
-      <div>
-        <input class='btn btn-default' onclick="" id='submit' name='submit' type='submit' value='Save'>
+<div>   
+    <b>What am I called?</b><span style="float: right"><b>Status: {{ form.status.data }}</b></span>
+    <form method="POST">
+        {{ form.csrf_token }}
+        <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
+        <b>Tell me a story</b>
+        <textarea class="form-control" id="markdown" name="body" value={{ form.body }}           <!-- don't know what's going on here; if I put ">" at end it shows up on page -->
+        <input class='btn btn-default' onclick="" id='submit' name='submit' type='submit' value='Save Draft'>
         <input class='btn btn-default' onclidk="" id='publish' name='submit' type='submit' value='Publish'>
-        <input class='btn btn-default' onclidk="" id='publish' name='submit' type='submit' value='Cancel'>
-    </div>
+        <input class='btn btn-default' onclidk="" id='publish' name='submit' style="float: right" type='submit' value='Close'>
     </form> 
 </div>
+<br>
 
-<script type='text/javascript'>
-      var simplemde = new SimpleMDE({ element: document.getElementById('markdown') });
-</script>
+
 {% endblock %}
-
-
 
 {% block scripts %}
 {{ super() }}
+<script type='text/javascript'>
+      var simplemde = new SimpleMDE({
+                                     element: document.getElementById('markdown'),
+                                     toolbar: ["bold", "italic", "strikethrough", "heading",
+                                                "|", "quote","unordered-list", "ordered-list",
+                                                "|", "link", "image", "|", "code", "table", "|",
+                                                "preview", "side-by-side", "fullscreen", "|", "guide"]
+                                     });
+</script>
 {% endblock %}

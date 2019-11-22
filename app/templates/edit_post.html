@@ -11,7 +11,6 @@
     <b>What am I called?</b><span style="float: right"><b>Status: {{ form.status.data }}</b></span>
     <form method="POST">
         {{ form.csrf_token }}
-        
         <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
         <b>Tell me a story</b>
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}           <!-- don't know what's going on here; if I put ">" at end it shows up on page -->

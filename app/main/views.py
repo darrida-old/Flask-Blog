@@ -122,7 +122,7 @@ def moderate_disable(id):
 #    return render_template('post.html', posts=[post])
 
 
-@main.route('/edit/', methods=['GET', 'POST'])
+@main.route('/edit_bak/', methods=['GET', 'POST'])
 @login_required
 def create_bak():
     post = Post()
@@ -141,13 +141,11 @@ def create_bak():
 
 @main.route('/create/', methods=['GET', 'POST'])
 @login_required
-@permission_required(Permission.WRITE)
 def create():
     post = Post()
     if current_user != post.author and \
             not current_user.can(Permission.ADMIN):
         abort(403)   
-    form = PostForm()
     if request.method=='POST' and request.form['submit']=='Close':
         flash('Post was closed without saving.')
         return redirect(url_for('.index'))
@@ -161,14 +159,12 @@ def create():
         if request.form['submit']=='Save Draft':
             flash('The post has been saved as a draft.')
             return redirect(url_for('.edit', id=post.id))
-        
         else:
             flash('The post has been saved and published.')
             return redirect(url_for('.post', id=post.id))
-        
-    #form = PostForm(request.form)#, title=post.title, body=post.body)
+    form = PostForm()
     form.title.data = ""
-    #form.body.data = post.body
+    form.body.data = ""
     form.status.data = 'Not Saved'
     return render_template('edit_post.html', action="Create", form=form)
 
@@ -196,8 +192,7 @@ def edit(id):
             flash('The post has been updated and published.')
         if request.form['submit']=='Publish':
             return redirect(url_for('.post', id=post.id))
-        
-    #form = PostForm(request.form)#, title=post.title, body=post.body)
+
     form.title.data = post.title
     form.body.data = post.body
     if post.published == 1:

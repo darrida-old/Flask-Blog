@@ -35,9 +35,10 @@
                         Account <b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu"> 
-                        {% if current_user.can(Permission.MODERATE) %}
-                            <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile ({{ current_user.username }})</a></li>
+                        {% if current_user.can(Permission.WRITE) %}
+                        <li><a href="{{ url_for('main.create') }}">Create Post</a></li>
                         {% endif %}
+                        <li><a href="{{ url_for('main.user', username=current_user.username) }}">Profile ({{ current_user.username }})</a></li>
                         <li><a href="{{ url_for('auth.change_password') }}">Change Password</a></li>
                         <li><a href="{{ url_for('auth.change_email_request') }}">Change Email</a></li>
                         <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
