@@ -196,43 +196,52 @@ def edit(id):
     if id > 0: 
         form = None
         post = Post.query.get_or_404(id)
+    else:
+        post = Post(title="", #request.form['title'],
+                    body="", #request.form['body'],
+                    published=0,
+                    author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
+        #flash('temp object ' + str(post.id) + ' ' + str(post.author) + ' created')
     if id > 0:    
         if current_user != post.author and \
                 not current_user.can(Permission.ADMIN):
             abort(403)   
-    
     if request.method=='POST' and request.form['submit']=='Close':
-        flash(request.method)
+        #flash(request.method)
         flash('The post was not updated.')
-        return redirect(url_for('.post', id=post.id))
-    elif request.method=='POST' and current_user.can(Permission.WRITE):
         if id > 0:
+            return redirect(url_for('.post', id=post.id))
+        else:
+            db.session.rollback()
+            return redirect(url_for('.index'))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if request.form['title'] == "" and request.form['body'] == "":
+            flash('Title and Body required')
+            return redirect(url_for('.edit', id=0))
+        else:
             post.title=request.form['title']
             post.body=request.form['body']
-            post.published=(0 if request.form['submit']=='Save Draft' else 1)
-        else:
-            post = Post(title=form.title.data, #request.form['title'],
-                    body=form.body, #request.form['body'],
-                    published=(0 if request.form['submit']=='Save Draft' else 1),
-                    author=current_user._get_current_object())
-            flash('post object created')
-        db.session.add(post)
-        db.session.flush()
-        db.session.refresh(post)
-        db.session.commit()
-        if request.form['submit']=='Save Draft':
-            flash('The post has been updated as a draft.')
-        else:
-            flash('The post has been updated and published.')
-        if request.form['submit']=='Publish':
-            return redirect(url_for('.post', id=post.id))
+            post.published=(0 if request.form['submit']=='Save Draft'
+                                 or request.form['title']==""
+                                 or request.form['body']==""
+                                 else 1)
+            db.session.add(post)
+            db.session.flush()
+            db.session.refresh(post)
+            db.session.commit()
+            if request.form['submit']=='Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=post.id))
+            else:
+                flash('The post has been updated and published.')
+            if request.form['submit']=='Publish':
+                return redirect(url_for('.post', id=post.id))
     form = PostForm()
-    if id > 0:
-        form.title.data = post.title
-        form.body.data = post.body
-    else:
-        form.title.data = ""
-        form.body.data = ""
+    form.title.data = post.title
+    form.body.data = post.body
     if id > 0:
         if post.published == 1:
             form.status.data = 'Published'
