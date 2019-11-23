@@ -167,20 +167,31 @@ def create():
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit(id):
-    form = None
-    post = Post.query.get_or_404(id)
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMIN):
-        abort(403)   
+    if id > 0: 
+        form = None
+        post = Post.query.get_or_404(id)
+    if id > 0:    
+        if current_user != post.author and \
+                not current_user.can(Permission.ADMIN):
+            abort(403)   
     form = PostForm()
     if request.method=='POST' and request.form['submit']=='Close':
         flash('The post was not updated.')
         return redirect(url_for('.post', id=post.id))
     elif request.method == 'POST' and current_user.can(Permission.WRITE):
-        post.title=request.form['title']
-        post.body=request.form['body']
-        post.published=(0 if request.form['submit']=='Save Draft' else 1)
+        if id > 0:
+            post.title=request.form['title']
+            post.body=request.form['body']
+            post.published=(0 if request.form['submit']=='Save Draft' else 1)
+        else:
+            post = Post(title=request.form['title'],
+                    body=request.form['body'],
+                    published=(0 if request.form['submit']=='Save Draft' else 1),
+                    author=current_user._get_current_object())
+            flash('post object created')
         db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
         db.session.commit()
         if request.form['submit']=='Save Draft':
             flash('The post has been updated as a draft.')
@@ -188,15 +199,24 @@ def edit(id):
             flash('The post has been updated and published.')
         if request.form['submit']=='Publish':
             return redirect(url_for('.post', id=post.id))
-    form.title.data = post.title
-    form.body.data = post.body
-    if post.published == 1:
-        form.status.data = 'Published'
-    elif post.published == 0:
-        form.status.data = 'Saved Draft'
+    if id > 0:
+        form.title.data = post.title
+        form.body.data = post.body
+    else:
+        form.title.data = ""
+        form.body.data = ""
+    if id > 0:
+        if post.published == 1:
+            form.status.data = 'Published'
+        elif post.published == 0:
+            form.status.data = 'Saved Draft'
     else:
         form.status.data = 'Not Saved'
-    return render_template('edit_post.html', action="Edit", form=form)
+    if id > 0:
+        action = 'Edit'
+    else:
+        action = 'Create'
+    return render_template('edit_post.html', action=action, form=form)
 
 
 @main.route('/edit_bak/<int:id>', methods=['GET', 'POST'])
