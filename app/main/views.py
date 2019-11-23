@@ -135,38 +135,7 @@ def create_bak():
 @main.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
-    #form = PostForm()
-    flash('method: ' + request.method)
-    flash('user: ' + str(current_user.can(Permission.WRITE)))
-    if request.method=='POST' and request.form['submit']=='Close':
-        flash('Post was closed without saving.')
-        return redirect(url_for('.index'))
-    elif request.method == 'POST' and current_user.can(Permission.WRITE):
-        post = Post(title=request.form['title'],
-                    body=request.form['body'],
-                    published=(0 if request.form['submit']=='Save Draft' else 1),
-                    author=current_user._get_current_object())
-        flash('post object created')
-        db.session.add(post)
-        db.session.flush()
-        db.session.refresh(post)
-        db.session.commit()
-        if request.form['submit']=='Save Draft':
-            flash('The post has been saved as a draft.')
-            return redirect(url_for('.edit', id=post.id))
-        else:
-            flash('The post has been saved and published.')
-            return redirect(url_for('.post', id=post.id))
-    form = PostForm()
-    form.title.data = ""
-    form.body.data = ""
-    form.status.data = 'Not Saved'
-    flash('form loaded')
-    return render_template('edit_post.html', action="Create", form=form)
-
-@main.route('/edit/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit(id):
+    id = 0
     if id > 0: 
         form = None
         post = Post.query.get_or_404(id)
@@ -174,18 +143,19 @@ def edit(id):
         if current_user != post.author and \
                 not current_user.can(Permission.ADMIN):
             abort(403)   
-    form = PostForm()
+    
     if request.method=='POST' and request.form['submit']=='Close':
+        flash(request.method)
         flash('The post was not updated.')
         return redirect(url_for('.post', id=post.id))
-    elif request.method == 'POST' and current_user.can(Permission.WRITE):
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
         if id > 0:
             post.title=request.form['title']
             post.body=request.form['body']
             post.published=(0 if request.form['submit']=='Save Draft' else 1)
         else:
-            post = Post(title=request.form['title'],
-                    body=request.form['body'],
+            post = Post(title=form.title.data, #request.form['title'],
+                    body=form.body, #request.form['body'],
                     published=(0 if request.form['submit']=='Save Draft' else 1),
                     author=current_user._get_current_object())
             flash('post object created')
@@ -199,6 +169,64 @@ def edit(id):
             flash('The post has been updated and published.')
         if request.form['submit']=='Publish':
             return redirect(url_for('.post', id=post.id))
+    form = PostForm()
+    if id > 0:
+        form.title.data = post.title
+        form.body.data = post.body
+    else:
+        form.title.data = ""
+        form.body.data = ""
+    if id > 0:
+        if post.published == 1:
+            form.status.data = 'Published'
+        elif post.published == 0:
+            form.status.data = 'Saved Draft'
+    else:
+        form.status.data = 'Not Saved'
+    if id > 0:
+        action = 'Edit'
+    else:
+        action = 'Create'
+    return render_template('create_post.html', action=action, form=form)
+
+@main.route('/edit/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)
+def edit(id):
+    if id > 0: 
+        form = None
+        post = Post.query.get_or_404(id)
+    if id > 0:    
+        if current_user != post.author and \
+                not current_user.can(Permission.ADMIN):
+            abort(403)   
+    
+    if request.method=='POST' and request.form['submit']=='Close':
+        flash(request.method)
+        flash('The post was not updated.')
+        return redirect(url_for('.post', id=post.id))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if id > 0:
+            post.title=request.form['title']
+            post.body=request.form['body']
+            post.published=(0 if request.form['submit']=='Save Draft' else 1)
+        else:
+            post = Post(title=form.title.data, #request.form['title'],
+                    body=form.body, #request.form['body'],
+                    published=(0 if request.form['submit']=='Save Draft' else 1),
+                    author=current_user._get_current_object())
+            flash('post object created')
+        db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
+        db.session.commit()
+        if request.form['submit']=='Save Draft':
+            flash('The post has been updated as a draft.')
+        else:
+            flash('The post has been updated and published.')
+        if request.form['submit']=='Publish':
+            return redirect(url_for('.post', id=post.id))
+    form = PostForm()
     if id > 0:
         form.title.data = post.title
         form.body.data = post.body
