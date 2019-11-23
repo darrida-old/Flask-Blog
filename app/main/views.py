@@ -12,13 +12,6 @@ from ..decorators import admin_required, permission_required
 
 @main.route('/', methods=['GET', 'POST'])
 def index():
-    #form = PostForm()
-    #if current_user.can(Permission.WRITE) and form.validate_on_submit():
-    #    post = Post(title=form.title.data, body=form.body.data,
-    #                author=current_user._get_current_object())
-    #    db.session.add(post)
-    #    db.session.commit()
-    #    return redirect(url_for('.index'))
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user.is_authenticated:
@@ -142,10 +135,9 @@ def create_bak():
 @main.route('/create/', methods=['GET', 'POST'])
 @login_required
 def create():
-    post = Post()
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMIN):
-        abort(403)   
+    #form = PostForm()
+    flash('method: ' + request.method)
+    flash('user: ' + str(current_user.can(Permission.WRITE)))
     if request.method=='POST' and request.form['submit']=='Close':
         flash('Post was closed without saving.')
         return redirect(url_for('.index'))
@@ -154,7 +146,10 @@ def create():
                     body=request.form['body'],
                     published=(0 if request.form['submit']=='Save Draft' else 1),
                     author=current_user._get_current_object())
+        flash('post object created')
         db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
         db.session.commit()
         if request.form['submit']=='Save Draft':
             flash('The post has been saved as a draft.')
@@ -166,6 +161,7 @@ def create():
     form.title.data = ""
     form.body.data = ""
     form.status.data = 'Not Saved'
+    flash('form loaded')
     return render_template('edit_post.html', action="Create", form=form)
 
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
@@ -192,7 +188,6 @@ def edit(id):
             flash('The post has been updated and published.')
         if request.form['submit']=='Publish':
             return redirect(url_for('.post', id=post.id))
-
     form.title.data = post.title
     form.body.data = post.body
     if post.published == 1:

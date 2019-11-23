@@ -9,7 +9,7 @@
 </div>
 <div>   
     <b>What am I called?</b><span style="float: right"><b>Status: {{ form.status.data }}</b></span>
-    <form method="POST">
+    <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
         <b>Tell me a story</b>
