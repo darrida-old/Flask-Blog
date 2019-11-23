@@ -110,85 +110,6 @@ def moderate_disable(id):
     return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
 
 
-#def post(id):
-#    post = Post.query.get_or_404(id)
-#    return render_template('post.html', posts=[post])
-
-
-@main.route('/edit_bak/', methods=['GET', 'POST'])
-@login_required
-def create_bak():
-    post = Post()
-    form = PostForm()
-    if request.method == 'POST' and current_user.can(Permission.WRITE):
-        post = Post(title=request.form['title'],
-                    body=request.form['body'],
-                    published=(0 if request.form['submit']=='Save' else 1),
-                    author=current_user._get_current_object())
-        db.session.add(post)
-        db.session.commit()
-        flash('The post has been created.')
-        return redirect(url_for('.post', id=post.id))
-    return render_template('create_post.html', form=form)
-
-
-@main.route('/create/', methods=['GET', 'POST'])
-@login_required
-def create():
-    id = 0
-    if id > 0: 
-        form = None
-        post = Post.query.get_or_404(id)
-    if id > 0:    
-        if current_user != post.author and \
-                not current_user.can(Permission.ADMIN):
-            abort(403)   
-    
-    if request.method=='POST' and request.form['submit']=='Close':
-        flash(request.method)
-        flash('The post was not updated.')
-        return redirect(url_for('.post', id=post.id))
-    elif request.method=='POST' and current_user.can(Permission.WRITE):
-        if id > 0:
-            post.title=request.form['title']
-            post.body=request.form['body']
-            post.published=(0 if request.form['submit']=='Save Draft' else 1)
-        else:
-            post = Post(title=form.title.data, #request.form['title'],
-                    body=form.body, #request.form['body'],
-                    published=(0 if request.form['submit']=='Save Draft' else 1),
-                    author=current_user._get_current_object())
-            flash('post object created')
-        db.session.add(post)
-        db.session.flush()
-        db.session.refresh(post)
-        db.session.commit()
-        if request.form['submit']=='Save Draft':
-            flash('The post has been updated as a draft.')
-        else:
-            flash('The post has been updated and published.')
-        if request.form['submit']=='Publish':
-            return redirect(url_for('.post', id=post.id))
-    form = PostForm()
-    if id > 0:
-        form.title.data = post.title
-        form.body.data = post.body
-    else:
-        form.title.data = ""
-        form.body.data = ""
-    if id > 0:
-        if post.published == 1:
-            form.status.data = 'Published'
-        elif post.published == 0:
-            form.status.data = 'Saved Draft'
-    else:
-        form.status.data = 'Not Saved'
-    if id > 0:
-        action = 'Edit'
-    else:
-        action = 'Create'
-    return render_template('create_post.html', action=action, form=form)
-
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.WRITE)
@@ -197,20 +118,13 @@ def edit(id):
         form = None
         post = Post.query.get_or_404(id)
     else:
-        post = Post(title="", #request.form['title'],
-                    body="", #request.form['body'],
-                    published=0,
-                    author=current_user._get_current_object())
+        post = Post(title="", body="", published=0, author=current_user._get_current_object())
         db.session.add(post)
         db.session.flush()
         db.session.refresh(post)
-        #flash('temp object ' + str(post.id) + ' ' + str(post.author) + ' created')
-    if id > 0:    
-        if current_user != post.author and \
-                not current_user.can(Permission.ADMIN):
+    if current_user != post.author and id > 0 and not current_user.can(Permission.ADMIN):
             abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
-        #flash(request.method)
         flash('The post was not updated.')
         if id > 0:
             return redirect(url_for('.post', id=post.id))
@@ -224,10 +138,7 @@ def edit(id):
         else:
             post.title=request.form['title']
             post.body=request.form['body']
-            post.published=(0 if request.form['submit']=='Save Draft'
-                                 or request.form['title']==""
-                                 or request.form['body']==""
-                                 else 1)
+            post.published=(0 if request.form['submit']=='Save Draft' else 1)
             db.session.add(post)
             db.session.flush()
             db.session.refresh(post)
@@ -249,55 +160,9 @@ def edit(id):
             form.status.data = 'Saved Draft'
     else:
         form.status.data = 'Not Saved'
-    if id > 0:
-        action = 'Edit'
-    else:
-        action = 'Create'
+    action = ('Edit' if id > 0 else 'Create')
     return render_template('edit_post.html', action=action, form=form)
 
-
-@main.route('/edit_bak/<int:id>', methods=['GET', 'POST'])
-@login_required
-def edit_bak(id):
-    post = Post.query.get_or_404(id)
-    if current_user != post.author and \
-            not current_user.can(Permission.ADMIN):
-        abort(403)   
-    form = PostForm()
-    if form.validate_on_submit():
-        post.title = form.title.data
-        post.body = form.body.data
-        db.session.add(post)
-        db.session.commit()
-        flash('The post has been updated.')
-        return redirect(url_for('.post', id=post.id))
-    form.title.data = post.title
-    form.body.data = post.body
-    return render_template('edit_post.html', form=form)
-
-
-
-  
-    #form = NameForm()
-    #if form.validate_on_submit():
-    #    user = User.query.filter_by(username=form.name.data).first()
-    #    if user is None:
-    #        user = User(username=form.name.data)
-    #        db.session.add(user)
-    #        db.session.commit()
-    #        session['known'] = False
-    #        if current_app.config['FLASKY_ADMIN']:
-    #            send_email(current_app.config['FLASKY_ADMIN'], 'New User',
-    #                       'mail/new_user', user=user)
-    #    else:
-    #        session['known'] = True
-    #    session['name'] = form.name.data
-    #    form.name.data = ''
-    #    return redirect(url_for('.index'))
-    #return render_template('index.html', form=form, 
-    #                       name=session.get('name'),
-    #                       known=session.get('known', False))
-    
     
 @main.route('/user/<username>')
 def user(username):
