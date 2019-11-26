@@ -7,6 +7,7 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
 from ..models import User, Role, Post, Permission, Comment
 from ..decorators import admin_required, permission_required
+from datetime import datetime
 
 
 
@@ -183,7 +184,7 @@ def quick_save():
     post.body=request.args.get('post_body', 0, type=str)
     db.session.add(post)
     db.session.commit()
-    return "autosaved"
+    return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
     
 
 
