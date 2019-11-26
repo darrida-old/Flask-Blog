@@ -127,10 +127,10 @@ def edit(id):
     if request.method=='POST' and request.form['submit']=='Close':
         flash('The post was not updated.')
         if id > 0:
-            return redirect(url_for('.post', id=post.id))
+            return redirect(url_for('.manage_posts'))
         else:
             db.session.rollback()
-            return redirect(url_for('.index'))
+            return redirect(url_for('.manage_posts'))
     elif request.method=='POST' and current_user.can(Permission.WRITE):
         if request.form['title'] == "" and request.form['body'] == "":
             flash('Title and Body required')
