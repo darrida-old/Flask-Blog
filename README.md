@@ -5,6 +5,7 @@
 
 
 #### To-Do
+- [ ] Update registration email to include relevant text (still sample copy for the flask development book)
 - [ ] Separate manage posts for multiple users (multiple writers can exist, but there is no separation of posts they can edit at the moment).
 - [ ] Add Google OAuth
 - [ ] Enhance edit post page
