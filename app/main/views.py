@@ -1,5 +1,5 @@
 from flask import render_template, redirect, url_for, current_app, \
-                  flash, request, make_response, abort
+                  flash, request, make_response, abort, jsonify
 from flask_login import login_required, current_user
 from flask_sqlalchemy import get_debug_queries
 from . import main
@@ -153,6 +153,7 @@ def edit(id):
     form = PostForm()
     form.title.data = post.title
     form.body.data = post.body
+    form.id.data = post.id
     if id > 0:
         if post.published == 1:
             form.status.data = 'Published'
@@ -162,6 +163,28 @@ def edit(id):
         form.status.data = 'Not Saved'
     action = ('Edit' if id > 0 else 'Create')
     return render_template('edit_post.html', action=action, form=form)
+
+
+@main.route('/_add_numbers')
+def add_numbers():
+    a = request.args.get('a', 0, type=int)
+    b = request.args.get('b', 0, type=int)
+    return jsonify(result=a + b)
+
+
+@main.route('/_quick_save')
+@login_required
+@permission_required(Permission.WRITE)
+def quick_save():
+    post_id=request.args.get('post_id', 0, type=int)
+    post = Post.query.get_or_404(post_id)
+    post.published=(False if request.args.get('post_status', 0, type=str)==0 else True)
+    post.title=request.args.get('post_title', 0, type=str)
+    post.body=request.args.get('post_body', 0, type=str)
+    db.session.add(post)
+    db.session.commit()
+    return "autosaved"
+    
 
 
 @main.route('/manage', methods=['GET', 'POST'])

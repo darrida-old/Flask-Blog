@@ -12,12 +12,23 @@
         <tbody>
             {% for post in posts %}
             <tr>
-              <td><a href="{{ url_for('.edit', id=post.id) }}">Edit</a></td>
-              <td>{{ moment(post.timestamp).fromNow() }}</td>
-              <td>{{ post.title }}</td>
-              <td>{{ post.author.username }}</td>
-              <td>{% if post.published==True %}Published{% else %}Draft{% endif %}</td>
+                <td>
+                    {% if current_user == post.author %}
+                    <a href="{{ url_for('.edit', id=post.id) }}">
+                        <span class="label label-primary">Edit</span>
+                    </a>
+                    {% elif current_user.is_administrator() %}
+                    <a href="{{ url_for('.edit', id=post.id) }}">
+                        <span class="label label-danger">Edit</span>
+                    </a>
+                    {% endif %}
+                </td>
+                <td>{{ moment(post.timestamp).fromNow() }}</td>
+                <td>{{ post.title }}</td>
+                <td>{{ post.author.username }}</td>
+                <td>{% if post.published==True %}Published{% else %}Draft{% endif %}</td>
             </tr>
             {% endfor %}
+        </tbody>
     </table>
 </ul>
