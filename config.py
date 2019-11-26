@@ -23,6 +23,7 @@ class Config:
     SIMPLEMDE_JS_IIFE = True
     SIMPLEMDE_USE_CDN = True
     SSL_REDIRECT = False
+    AJAX_ROOT_URL = 'localhost:5000'
     
     @staticmethod
     def init_app(app):

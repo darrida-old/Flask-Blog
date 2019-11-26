@@ -7,21 +7,28 @@
 <div class="page-header">
     <h1>{{ action }} Post</h1>
 </div>
+
 <div>   
-    <input type="hidden" name="post_id" value="{{ form.id.data }}">
     <b>What am I called?</b><span name="post_status" style="float: right"><b>Status: {{ form.status.data }}</b></span>
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
         <b>Tell me a story</b>
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
-        <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
+        <input class="btn btn-default" onclick="" id="submit" name="submit" type="submit" value="Quick Save">
         <input class="btn btn-default" onclick="" id="submit" name="submit" type="submit" value="Save Draft">
         <input class="btn btn-default" onclidk="" id="submit" name="submit" type="submit" value="Publish">
         <input class="btn btn-default" onclidk="" id="submit" name="submit" style="float: right" type="submit" value="Close">
     </form> 
 </div>
 <br>
+
+<div>
+<p><input type=text size=5 name=a> +
+   <input type=text size=5 name=b> =
+   <span id=result>?</span>
+<p><a href=# id=calculate>calculate server side</a>
+</div>
 
 
 {% endblock %}
@@ -30,12 +37,6 @@
 {{ super() }}
 <script type='text/javascript'>
       var simplemde = new SimpleMDE({
-                                     forceSync: true,
-                                     tabSize: 4,
-                                     autosave: {
-		enabled: true,
-		uniqueId: "MyUniqueID",
-		delay: 1000 },
                                      element: document.getElementById('markdown'),
                                      toolbar: ["bold", "italic", "strikethrough", "heading",
                                                 "|", "quote","unordered-list", "ordered-list",
@@ -43,15 +44,12 @@
                                                 "preview", "side-by-side", "fullscreen", "|", "guide"]
                                      });
 </script>
-<script>var simpemdeAutosave = setInterval(autosave, 1000);</script>
 <script type=text/javascript>
   $(function() {
-    $('a#quick-submit').bind('click', function autosave() {
-      $.getJSON($SCRIPT_ROOT + '/_quick_save', {
-        post_id: $('input[name="post_id"]').val(),
-        post_status: $('input[name="post_status"]').val(),
-        post_title: $('input[name="title"]').val(),
-        post_body: $(document.getElementById('markdown')).val()
+    $('a#calculate').bind('click', function() {
+      $.getJSON($SCRIPT_ROOT + '/_add_numbers', {
+        a: $('input[name="a"]').val(),
+        b: $('input[name="b"]').val()
       }, function(data) {
         $("#result").text(data.result);
       });
