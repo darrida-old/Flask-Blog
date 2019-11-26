@@ -178,7 +178,7 @@ def add_numbers():
 def quick_save():
     post_id=request.args.get('post_id', 0, type=int)
     post = Post.query.get_or_404(post_id)
-    post.published=(False if request.args.get('post_status', 0, type=str)==0 else True)
+    post.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
     post.title=request.args.get('post_title', 0, type=str)
     post.body=request.args.get('post_body', 0, type=str)
     db.session.add(post)
