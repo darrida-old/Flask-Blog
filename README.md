@@ -1,6 +1,5 @@
 # flask-blog
  
-- For debugging description...
 
 
 
