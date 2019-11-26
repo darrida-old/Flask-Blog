@@ -1,5 +1,10 @@
+echo off
 set FLASK_APP=flasky.py
+echo FLASK_APP=flasky.py
 set FLASK_CONFIG=production
+echo FLASK_CONFIG=production
 set MAIL_USERNAME=bentestflask@gmail.com
-set MAIL_PASSWORD=n7H{X]Mnr%,Dd5ep[Rko1P29C0qN]P
+echo MAIL_USERNAME=bentestflask@gmail.com
 set FLASKY_ADMIN=bentestflask@gmail.com
+echo FLASKY_ADMIN=bentestflask@gmail.com
+echo ***NOTE: Set MAIL_PASSWORD manually.***
