@@ -8,6 +8,12 @@
 img[src*="post-image-large"] {
    max-width:625px;
 }
+
+img[src*="post-image-width"] {
+    width:90%; /* Fallback incase the browser doesn't support */
+    width:calc(100% - 24px); /* This will calculate the 100% viewport height minus 50px */
+}
+
 .profile-thumbnail {
     position: absolute;
 }
