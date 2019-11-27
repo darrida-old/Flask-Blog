@@ -1,8 +1,28 @@
 # flask-blog
  
-For debugging description...
-```
-remote:          Could not find a version that satisfies the requirement pkg-resources==0.0.0 (from -r/tmp/build_1b06c0323986c42337cfd16a42542c2a/requirements.txt (line 11)) (from versions: )
-remote:        No matching distribution found for pkg-resources==0.0.0 (from -r /tmp/build_1b06c0323986c42337cfd16a42542c2a/requirements.txt (line 11))
-remote:  !     Push rejected, failed to compile Python app.
-```
+
+
+
+
+#### To-Do
+- [ ] Update registration email to include relevant text (still sample copy for the flask development book)
+- [ ] Separate manage posts for multiple users (multiple writers can exist, but there is no separation of posts they can edit at the moment).
+- [ ] Add Google OAuth
+- [ ] Enhance edit post page
+  - [ ] Add side bar utilities
+    - [ ] Set draft/published without reloading page
+	- [ ] Preview content currently in the editor without saving
+	- [ ] tags (tags not implimented in general yet, though table for it exists)
+	- [ ] categories
+- [ ] Enhance manage posts page
+  - [ ] simple editing for multiple posts at once (i.e., checkboxes for setting a batch to draft/published
+- [ ] Enhance index (blog feed) page
+  - [ ] Social media links/follow buttons
+  - [ ] Separate page sections for different kinds of posts (philosophy vs tech, etc)
+- [ ] API
+  - [ ] Create post from Evernote?
+  - [ ] RSS feed
+  - [ ] Email updates
+
+##### Future Possibilities
+- [ ] Electron app for managing posts, and previewing individual posts off-line
