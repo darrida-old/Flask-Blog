@@ -60,10 +60,42 @@ class Post(db.Model):
                 markdown(value, output_format='html'),
                 tags=allowed_tags, attributes=allowed_attributes, strip=True))
     
-    #@event.listens_for(Post, "before_insert")
-    #@staticmethod
-    #def on_post_create(target, value, ):
-    #    new_post_number = db.session.query(db.func.max(Post.post_number)).first()[0]
+    def __init__(self, **kwargs):
+        super(Post, self).__init__(**kwargs)
+        if self.activePost_id == 101:
+            new_active = activePost()
+            db.session.add(new_active)
+            db.session.flush()
+            db.session.refresh(new_active)
+            self.activePost_id = new_active.id
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            new_active.post_id = self.id
+            db.session.add(new_active)
+            #db.session.commit()
+        elif self.activePost_id is not None:
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            active = activePost.query.get(self.activePost_id)
+            active.post_id = self.id
+            db.session.add(active)
+
+    @staticmethod
+    def on_insert_new_post(self):
+        new_active = activePost(self.id, 0)
+        #new_active.id = self.id
+        #new_active.published = 0
+        db.session.add(new_active)
+        db.session.flush()
+        db.session.refresh(new_active)
+        self.activePost_id = activePost.id
+        db.session.add(self.activePost)
+        db.session.commit()
+    #    #new_post_number = db.session.query(db.func.max(Post.post_number)).first()[0]
+
+    #def on_insert_change_post(self, )
         
     def to_json(self):
         json_post = {
@@ -87,6 +119,7 @@ class Post(db.Model):
 
 #db.event.listen(Post.post_number, 'before_insert', Post.on_changed_body)        
 db.event.listen(Post.body, 'set', Post.on_changed_body)
+#db.event.listen(Post.id, 'set', Post.on_insert_activePost)
 
 
 class Comment(db.Model):

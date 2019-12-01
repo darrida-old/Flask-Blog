@@ -118,8 +118,12 @@ def edit(id):
     if id > 0: 
         form = None
         post = Post.query.get_or_404(id)
+        post_new = Post(title="", body="", published=0, author=current_user._get_current_object())
+        db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
     else:
-        post = Post(title="", body="", published=0, author=current_user._get_current_object())
+        post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
         db.session.add(post)
         db.session.flush()
         db.session.refresh(post)
@@ -137,20 +141,22 @@ def edit(id):
             flash('Title and Body required')
             return redirect(url_for('.edit', id=0))
         else:
-            post.title=request.form['title']
-            post.body=request.form['body']
-            post.published=(0 if request.form['submit']=='Save Draft' else 1)
-            db.session.add(post)
+            post_new.title=request.form['title']
+            post_new.body=request.form['body']
+            post_new.published=(0 if request.form['submit']=='Save Draft' else 1)
+            if post.activePost_id is not None:
+                post_new.activePost_id = post.activePost_id
+            db.session.add(post_new)
             db.session.flush()
-            db.session.refresh(post)
+            db.session.refresh(post_new)
             db.session.commit()
             if request.form['submit']=='Save Draft':
                 flash('The post has been updated as a draft.')
-                return redirect(url_for('.edit', id=post.id))
+                return redirect(url_for('.edit', id=post_new.id))
             else:
                 flash('The post has been updated and published.')
             if request.form['submit']=='Publish':
-                return redirect(url_for('.post', id=post.id))
+                return redirect(url_for('.post', id=post_new.id))
     form = PostForm()
     form.title.data = post.title
     form.body.data = post.body
