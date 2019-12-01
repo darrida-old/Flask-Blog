@@ -37,7 +37,7 @@ class activePost(db.Model):
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
-    activePost_id = db.Column(db.Integer, db.ForeignKey(active_posts.id))
+    activePost_id = db.Column(db.Integer, db.ForeignKey('active_posts.id'))
     title = db.Column(db.String(256))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)

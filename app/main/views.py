@@ -5,7 +5,7 @@ from flask_sqlalchemy import get_debug_queries
 from . import main
 from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
-from ..models import User, Role, Post, Permission, Comment
+from ..models import User, Role, Post, Permission, Comment, postTag, activePost
 from ..decorators import admin_required, permission_required
 from datetime import datetime
 
