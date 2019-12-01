@@ -18,17 +18,26 @@ class Tag(db.Model):
 
 
 class postTag(db.Model):
-    __tablename = 'posttags'
+    __tablename__ = 'posttags'
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'),
                             primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'),
                             primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+# Table that controls which version of a post is the "current" version and if it is published
+class activePost(db.Model):
+    __tablename__ = 'active_posts'
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    published = db.Column(db.Boolean, default=False)
+    posts = db.relationship('Post', backref='active_post', lazy='dynamic')
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
+    activePost_id = db.Column(db.Integer, db.ForeignKey(active_posts.id))
     title = db.Column(db.String(256))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -38,6 +47,7 @@ class Post(db.Model):
     published = db.Column(db.Boolean, default=False)
     comments = db.relationship('Comment', backref='post', lazy='dynamic')
     tags = db.relationship('postTag', backref='posttags', lazy='dynamic')
+    active_posts = db.relationship('activePost', backref='post', lazy='dynamic')
     
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -50,6 +60,11 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
                 markdown(value, output_format='html'),
                 tags=allowed_tags, attributes=allowed_attributes, strip=True))
+    
+    #@event.listens_for(Post, "before_insert")
+    #@staticmethod
+    #def on_post_create(target, value, ):
+    #    new_post_number = db.session.query(db.func.max(Post.post_number)).first()[0]
         
     def to_json(self):
         json_post = {
@@ -70,7 +85,8 @@ class Post(db.Model):
             raise ValidationError('post does not have a body')
         return Post(body=body)
         
-        
+
+#db.event.listen(Post.post_number, 'before_insert', Post.on_changed_body)        
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
