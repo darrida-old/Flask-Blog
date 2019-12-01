@@ -20,7 +20,7 @@ migrate = Migrate(app, db)
 def make_shell_context():
     return dict(db=db, User=User, Follow=Follow, Role=Role,
                 Permission=Permission, Post=Post, Comment=Comment, Tag=Tag,
-                postTag=postTag)
+                postTag=postTag, activePost=activePost)
 
 
 @app.cli.command()
