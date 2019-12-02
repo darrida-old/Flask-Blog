@@ -124,8 +124,13 @@ def edit(id):
         db.session.refresh(post)
     else:
 <<<<<<< HEAD
+<<<<<<< HEAD
         new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
         db.session.add(new_post)
+=======
+        post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
+        db.session.add(post)
+>>>>>>> parent of 44c77ec... finished activePosts basics
 =======
         post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
         db.session.add(post)
@@ -145,6 +150,7 @@ def edit(id):
         if request.form['title'] == "" and request.form['body'] == "":
             flash('Title and Body required')
             return redirect(url_for('.edit', id=0))
+<<<<<<< HEAD
         else:
             post_new.title=request.form['title']
             post_new.body=request.form['body']
@@ -225,37 +231,61 @@ def edit2(id):
             else:
                 new_post.activePost_id = 0
             db.session.add(new_post)
+=======
+        else:
+            post_new.title=request.form['title']
+            post_new.body=request.form['body']
+            post_new.published=(0 if request.form['submit']=='Save Draft' else 1)
+            if post.activePost_id is not None:
+                post_new.activePost_id = post.activePost_id
+            db.session.add(post_new)
+>>>>>>> parent of 44c77ec... finished activePosts basics
             db.session.flush()
-            db.session.refresh(new_post)
+            db.session.refresh(post_new)
             db.session.commit()
+<<<<<<< HEAD
             active_post = activePost.query.get_or_404(new_post.activePost_id)
             if request.form['submit'] == 'Save Draft':
                 flash('The post has been updated as a draft.')
                 return redirect(url_for('.edit2', id=active_post.id))
+=======
+            if request.form['submit']=='Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=post_new.id))
+>>>>>>> parent of 44c77ec... finished activePosts basics
             else:
-                flash(str(new_post.activePost_id))
-                flash(str(request.form['post_type']))
                 flash('The post has been updated and published.')
+<<<<<<< HEAD
             if request.form['submit'] == 'Publish':
                 return redirect(url_for('.edit2', id=active_post.id))
+=======
+            if request.form['submit']=='Publish':
+                return redirect(url_for('.post', id=post_new.id))
+>>>>>>> parent of 44c77ec... finished activePosts basics
     form = PostForm()
-    #form.title.data = post.title
-    #form.body.data = post.body
-    #form.id.data = post.id
+    form.title.data = post.title
+    form.body.data = post.body
+    form.id.data = post.id
     if id > 0:
+<<<<<<< HEAD
         form.title.data = post.title
         form.body.data = post.body
         #form.id.data = post.id
         form.post_type.data = 'edit'
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
         if post.published == 1:
             form.status.data = 'Published'
         elif post.published == 0:
             form.status.data = 'Saved Draft'
     else:
+<<<<<<< HEAD
         form.title.data = new_post.title
         form.body.data = new_post.body
         #form.id.data = new_post.id
         form.post_type.data = 'new'
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
         form.status.data = 'Not Saved'
     flash('post id: ' + str(post.id))
     flash('active id: ' + str(post.activePost_id))
