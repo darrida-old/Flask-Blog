@@ -125,9 +125,15 @@ def edit(id):
     else:
         post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
 <<<<<<< HEAD
+<<<<<<< HEAD
         db.session.add(new_post)
         db.session.flush()
         db.session.refresh(new_post)
+=======
+        db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
+>>>>>>> parent of 44c77ec... finished activePosts basics
 =======
         db.session.add(post)
         db.session.flush()
