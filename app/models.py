@@ -64,6 +64,7 @@ class Post(db.Model):
         super(Post, self).__init__(**kwargs)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         if self.activePost_id != 0:
             self.edit_post_active_ind()
         else:
@@ -88,6 +89,8 @@ class Post(db.Model):
         active.post_id = post.id
         db.session.add(active)
 =======
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
 =======
 >>>>>>> parent of 44c77ec... finished activePosts basics
         if self.activePost_id == 101:

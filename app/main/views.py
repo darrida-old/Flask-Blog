@@ -124,9 +124,15 @@ def edit(id):
         db.session.refresh(post)
     else:
         post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
+<<<<<<< HEAD
         db.session.add(new_post)
         db.session.flush()
         db.session.refresh(new_post)
+=======
+        db.session.add(post)
+        db.session.flush()
+        db.session.refresh(post)
+>>>>>>> parent of 44c77ec... finished activePosts basics
     if current_user != post.author and id > 0 and not current_user.can(Permission.ADMIN):
             abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
