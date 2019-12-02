@@ -127,7 +127,7 @@ def edit(id):
         db.session.flush()
         db.session.refresh(post)
     else:
-        new_post = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
+        new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
         db.session.add(new_post)
         db.session.flush()
         db.session.refresh(new_post)
@@ -189,6 +189,93 @@ def edit(id):
         form.status.data = 'Not Saved'
     action = ('Edit' if id > 0 else 'Create')
     return render_template('edit_post.html', action=action, form=form)
+
+
+@main.route('/edit2/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)
+def edit2(id):
+    if id > 0: 
+        form = None
+        #post = Post.query.get_or_404(id)
+        active_post = activePost.query.get_or_404(id)
+        post = Post.query.filter_by(id=active_post.post_id).first()
+        #post.activePost_id = post.activePost_id + 1
+        new_post = Post(title=post.title, 
+                        body=post.body,
+                        published=post.published,
+                        activePost_id = post.activePost_id + 1,
+                        author=post.author)
+        #db.session.add(new_post)
+        #db.session.flush()
+        #db.session.refresh(new_post)
+    else:
+        new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
+        #db.session.add(new_post)
+        ##db.session.flush()
+        #db.session.refresh(new_post)
+    if id > 0:
+        if current_user != post.author or not current_user.can(Permission.ADMIN):
+            abort(403)   
+    if request.method=='POST' and request.form['submit']=='Close':
+        flash('The post was not updated.')
+        if id > 0:
+            return redirect(url_for('.manage_posts'))
+        else:
+            db.session.rollback()
+            return redirect(url_for('.manage_posts'))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if request.form['title'] == "" and request.form['body'] == "":
+            flash('Title and Body required')
+            return redirect(url_for('.edit2', id=0))
+        elif request.form['post_type'] == 'quicksave':
+            flash('quick save weirdness')
+        else:
+            new_post.title = request.form['title']
+            new_post.body = request.form['body']
+            new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            if request.form['post_type'] == 'edit':
+                new_post.activePost_id = post.activePost_id
+            else:
+                new_post.activePost_id = 0
+            db.session.add(new_post)
+            db.session.flush()
+            db.session.refresh(new_post)
+            db.session.commit()
+            active_post = activePost.query.get_or_404(new_post.activePost_id)
+            if request.form['submit'] == 'Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit2', id=active_post.id))
+            else:
+                flash(str(new_post.activePost_id))
+                flash(str(request.form['post_type']))
+                flash('The post has been updated and published.')
+            if request.form['submit'] == 'Publish':
+                return redirect(url_for('.edit2', id=active_post.id))
+    form = PostForm()
+    #form.title.data = post.title
+    #form.body.data = post.body
+    #form.id.data = post.id
+    if id > 0:
+        form.title.data = post.title
+        form.body.data = post.body
+        #form.id.data = post.id
+        form.post_type.data = 'edit'
+        if post.published == 1:
+            form.status.data = 'Published'
+        elif post.published == 0:
+            form.status.data = 'Saved Draft'
+    else:
+        form.title.data = new_post.title
+        form.body.data = new_post.body
+        #form.id.data = new_post.id
+        form.post_type.data = 'new'
+        form.status.data = 'Not Saved'
+    flash('post id: ' + str(post.id))
+    flash('active id: ' + str(post.activePost_id))
+    action = ('Edit' if id > 0 else 'Create')
+    return render_template('edit_post.html', action=action, form=form)
+
 
 
 @main.route('/_add_numbers')
