@@ -62,6 +62,7 @@ class Post(db.Model):
     
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
+<<<<<<< HEAD
         if self.activePost_id != 0:
             self.edit_post_active_ind()
         else:
@@ -85,6 +86,38 @@ class Post(db.Model):
         active = activePost.query.get_or_404(post.activePost_id)
         active.post_id = post.id
         db.session.add(active)
+=======
+        if self.activePost_id == 101:
+            new_active = activePost()
+            db.session.add(new_active)
+            db.session.flush()
+            db.session.refresh(new_active)
+            self.activePost_id = new_active.id
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            new_active.post_id = self.id
+            db.session.add(new_active)
+            #db.session.commit()
+        elif self.activePost_id is not None:
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            active = activePost.query.get(self.activePost_id)
+            active.post_id = self.id
+            db.session.add(active)
+
+    @staticmethod
+    def on_insert_new_post(self):
+        new_active = activePost(self.id, 0)
+        #new_active.id = self.id
+        #new_active.published = 0
+        db.session.add(new_active)
+        db.session.flush()
+        db.session.refresh(new_active)
+        self.activePost_id = activePost.id
+        db.session.add(self.activePost)
+>>>>>>> parent of 44c77ec... finished activePosts basics
         db.session.commit()
         
     def to_json(self):
