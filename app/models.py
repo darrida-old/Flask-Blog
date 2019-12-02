@@ -62,25 +62,32 @@ class Post(db.Model):
     
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
-        if self.activePost_id == 101:
-            new_active = activePost()
-            db.session.add(new_active)
-            db.session.flush()
-            db.session.refresh(new_active)
-            self.activePost_id = new_active.id
-            db.session.add(self)
-            db.session.flush()
-            db.session.refresh(self)
-            new_active.post_id = self.id
-            db.session.add(new_active)
-            #db.session.commit()
-        elif self.activePost_id is not None:
-            db.session.add(self)
-            db.session.flush()
-            db.session.refresh(self)
-            active = activePost.query.get(self.activePost_id)
-            active.post_id = self.id
-            db.session.add(active)
+        if self.activePost_id is not None:
+            self.edit_post_active_ind()
+        else:
+            self.new_post_active_ind()
+
+    def new_post_active_ind(self):
+        active = activePost()
+        db.session.add(active)
+        db.session.flush()
+        db.session.refresh(active)
+        self.activePost_id = active.id
+        db.session.add(self)
+        db.session.flush()
+        db.session.refresh(self)
+        active.post_id = self.id
+        db.session.add(active)
+        #db.session.commit()
+
+    def edit_post_active_ind(self):
+        #db.session.add(self)
+        #db.session.flush()
+        #db.session.refresh(self)
+        active = activePost.query.get_or_404(self.activePost_id)
+        active.post_id = self.id
+        db.session.add(active)
+        #db.session.commit()
 
     @staticmethod
     def on_insert_new_post(self):

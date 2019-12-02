@@ -36,7 +36,7 @@ def post(id):
     form = CommentForm()
     if form.validate_on_submit():
         comment = Comment(body=form.body.data,
-                          post=post,
+                          post_id=id,
                           author=current_user._get_current_object())
         db.session.add(comment)
         db.session.commit()
@@ -118,16 +118,21 @@ def edit(id):
     if id > 0: 
         form = None
         post = Post.query.get_or_404(id)
-        post_new = Post(title="", body="", published=0, author=current_user._get_current_object())
+        new_post = Post(title=post.title, 
+                        body=post.body,
+                        published=post.published,
+                        activePost_id = post.activePost_id,
+                        author=current_user._get_current_object())
         db.session.add(post)
         db.session.flush()
         db.session.refresh(post)
     else:
-        post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
-        db.session.add(post)
+        new_post = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
+        db.session.add(new_post)
         db.session.flush()
-        db.session.refresh(post)
-    if current_user != post.author and id > 0 and not current_user.can(Permission.ADMIN):
+        db.session.refresh(new_post)
+    if id > 0:
+        if current_user != post.author and not current_user.can(Permission.ADMIN):
             abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
         flash('The post was not updated.')
@@ -140,33 +145,47 @@ def edit(id):
         if request.form['title'] == "" and request.form['body'] == "":
             flash('Title and Body required')
             return redirect(url_for('.edit', id=0))
+        elif request.form['post_type'] == 'quicksave':
+            flash('quick save weirdness')
         else:
-            post_new.title=request.form['title']
-            post_new.body=request.form['body']
-            post_new.published=(0 if request.form['submit']=='Save Draft' else 1)
-            if post.activePost_id is not None:
-                post_new.activePost_id = post.activePost_id
-            db.session.add(post_new)
-            db.session.flush()
-            db.session.refresh(post_new)
-            db.session.commit()
-            if request.form['submit']=='Save Draft':
-                flash('The post has been updated as a draft.')
-                return redirect(url_for('.edit', id=post_new.id))
+            new_post.title = request.form['title']
+            new_post.body = request.form['body']
+            new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            if request.form['post_type'] == 'edit':
+                new_post.activePost_id = post.activePost_id
             else:
+                new_post.activePost_id = None
+            db.session.add(new_post)
+            db.session.flush()
+            db.session.refresh(new_post)
+            db.session.commit()
+            if request.form['submit'] == 'Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=new_post.id))
+            else:
+                flash(str(new_post.activePost_id))
+                flash(str(request.form['post_type']))
                 flash('The post has been updated and published.')
-            if request.form['submit']=='Publish':
-                return redirect(url_for('.post', id=post_new.id))
+            if request.form['submit'] == 'Publish':
+                return redirect(url_for('.post', id=new_post.id))
     form = PostForm()
-    form.title.data = post.title
-    form.body.data = post.body
-    form.id.data = post.id
+    #form.title.data = post.title
+    #form.body.data = post.body
+    #form.id.data = post.id
     if id > 0:
+        form.title.data = post.title
+        form.body.data = post.body
+        form.id.data = post.id
+        form.post_type.data = 'edit'
         if post.published == 1:
             form.status.data = 'Published'
         elif post.published == 0:
             form.status.data = 'Saved Draft'
     else:
+        form.title.data = new_post.title
+        form.body.data = new_post.body
+        form.id.data = new_post.id
+        form.post_type.data = 'new'
         form.status.data = 'Not Saved'
     action = ('Edit' if id > 0 else 'Create')
     return render_template('edit_post.html', action=action, form=form)
