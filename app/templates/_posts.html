@@ -27,11 +27,11 @@
                     <div class="post-footer">
                         {% if current_user.can(Permission.WRITE) %}
                             {% if current_user == post.author %}
-                                <a href="{{ url_for('.edit', id=post.id) }}">
+                                <a href="{{ url_for('.edit', id=post.activePost_id) }}">
                                     <span class="label label-primary">Edit</span>
                                 </a>
                             {% elif current_user.is_administrator() %}
-                                <a href="{{ url_for('.edit', id=post.id) }}">
+                                <a href="{{ url_for('.edit', id=post.activePost_id) }}">
                                     <span class="label label-danger">Edit [Admin]</span>
                                 </a>
                             {% endif %}

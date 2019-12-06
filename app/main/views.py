@@ -111,23 +111,137 @@ def moderate_disable(id):
     return redirect(url_for('.moderate', page=request.args.get('page', 1, type=int)))
 
 
+@main.route('/edit/new', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)
+def edit_new():
+    new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
+    db.session.add(new_post)
+    db.session.flush()
+    db.session.refresh(new_post)
+    if request.method=='POST' and request.form['submit']=='Close':
+        flash('The post was not updated.')
+        db.session.rollback()
+        return redirect(url_for('.manage_posts'))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if request.form['title'] == "" and request.form['body'] == "":
+            flash('Title and Body required')
+            return redirect(url_for('.edit', id=0))
+        elif request.form['post_type'] == 'quicksave':
+            flash('quick save weirdness')
+        else:
+            new_post.title = request.form['title']
+            new_post.body = request.form['body']
+            new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            if request.form['post_type'] == 'edit':
+                new_post.activePost_id = post.activePost_id
+            else:
+                new_post.activePost_id = None
+            db.session.add(new_post)
+            db.session.flush()
+            db.session.refresh(new_post)
+            db.session.commit()
+            if request.form['submit'] == 'Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=new_post.id))
+            else:
+                flash(str(new_post.activePost_id))
+                flash(str(request.form['post_type']))
+                flash('The post has been updated and published.')
+            if request.form['submit'] == 'Publish':
+                return redirect(url_for('.post', id=new_post.id))
+    form = PostForm()
+    form.title.data = new_post.title
+    form.body.data = new_post.body
+    form.id.data = new_post.id
+    form.post_type.data = 'new'
+    form.status.data = 'Not Saved'
+    action = 'Create'
+    return render_template('edit_post.html', action=action, form=form)
+
+
 @main.route('/edit/<int:id>', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.WRITE)
 def edit(id):
+    form = None
+    #post = Post.query.get_or_404(id)
+    url_id = activePost.query.filter_by(id=id).filter_by(published=1).first()
+    post = Post.query.filter_by(activePost_id=url_id.id).filter_by(published=1).first()
+    new_post = Post(title=post.title, 
+                    body=post.body,
+                    published=post.published,
+                    activePost_id = post.activePost_id,
+                    author=current_user._get_current_object())
+    db.session.add(new_post)
+    db.session.flush()
+    db.session.refresh(new_post)
+    if current_user != post.author and not current_user.can(Permission.ADMIN):
+        abort(403)   
+    if request.method=='POST' and request.form['submit']=='Close':
+        flash('The post was not updated.')
+        db.session.rollback()
+        return redirect(url_for('.manage_posts'))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if request.form['title'] == "" and request.form['body'] == "":
+            flash('Title and Body required')
+            return redirect(url_for('.edit', id=0))
+        elif request.form['post_type'] == 'quicksave':
+            flash('quick save weirdness')
+        else:
+            new_post.title = request.form['title']
+            new_post.body = request.form['body']
+            new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            if request.form['post_type'] == 'edit':
+                new_post.activePost_id = post.activePost_id
+            else:
+                new_post.activePost_id = None
+            db.session.add(new_post)
+            db.session.flush()
+            db.session.refresh(new_post)
+            db.session.commit()
+            if request.form['submit'] == 'Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=new_post.id))
+            else:
+                flash(str(new_post.activePost_id))
+                flash(str(request.form['post_type']))
+                flash('The post has been updated and published.')
+            if request.form['submit'] == 'Publish':
+                return redirect(url_for('.post', id=new_post.id))
+    form = PostForm()
+    form.title.data = post.title
+    form.body.data = post.body
+    form.id.data = post.id
+    form.active_post.data = post.activePost_id
+    form.post_type.data = 'edit'
+    if post.published == 1:
+        form.status.data = 'Published'
+    elif post.published == 0:
+        form.status.data = 'Saved Draft'
+    action = 'Edit'
+    return render_template('edit_post.html', action=action, form=form)
+
+
+@main.route('/edit/<int:id>/bak', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)
+def edit_bak(id):
     if id > 0: 
         form = None
-        post = Post.query.get_or_404(id)
+        #post = Post.query.get_or_404(id)
+        url_id = activePost.query.filter_by(id=id).filter_by(published=1).first()
+        post = Post.query.filter_by(activePost_id=url_id.id).filter_by(published=1).first()
         new_post = Post(title=post.title, 
                         body=post.body,
                         published=post.published,
                         activePost_id = post.activePost_id,
                         author=current_user._get_current_object())
-        db.session.add(post)
+        db.session.add(new_post)
         db.session.flush()
-        db.session.refresh(post)
+        db.session.refresh(new_post)
     else:
-        new_post = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
+        new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
         db.session.add(new_post)
         db.session.flush()
         db.session.refresh(new_post)
@@ -136,11 +250,8 @@ def edit(id):
             abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
         flash('The post was not updated.')
-        if id > 0:
-            return redirect(url_for('.manage_posts'))
-        else:
-            db.session.rollback()
-            return redirect(url_for('.manage_posts'))
+        db.session.rollback()
+        return redirect(url_for('.manage_posts'))
     elif request.method=='POST' and current_user.can(Permission.WRITE):
         if request.form['title'] == "" and request.form['body'] == "":
             flash('Title and Body required')

@@ -10,7 +10,7 @@ from flask_pagedown.fields import PageDownField
 class PostForm(FlaskForm):
     id = HiddenField('id: ')
     post_type = HiddenField('post type: ')
-    #active_post = HiddenField('active_post: ')
+    active_post = HiddenField('active_post: ')
     title = StringField('Title', validators=[DataRequired()])
     body = TextAreaField("What's on your mind?")
     status = HiddenField('Status: ')
