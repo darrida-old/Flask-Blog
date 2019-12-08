@@ -8,10 +8,9 @@
     <h1>{{ action }} Post</h1>
 </div>
 <div>   
+    <input type="hidden" name="post_id" value="{{ form.id.data }}">
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
-        <input type="hidden" name="post_id" value="{{ form.id.data }}">
-        <input type="hidden" name="post_type" value="{{ form.post_type.data }}">
         <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
         <span class="btn-group"  style="float: right">
             <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
@@ -60,8 +59,7 @@
         post_id: $('input[name="post_id"]').val(),
         post_status: $('input[name="post_status"]').val(),
         post_title: $('input[name="title"]').val(),
-        post_body: $(document.getElementById('markdown')).val(),
-        post_type: $('quicksave').val()
+        post_body: $(document.getElementById('markdown')).val()
       }, function(data) {
         $("#result").text(data.result);
       });

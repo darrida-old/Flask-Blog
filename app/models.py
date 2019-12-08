@@ -36,7 +36,7 @@ class activePost(db.Model):
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
-    activePost_id = db.Column(db.Integer)
+    activePost_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(256))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -62,7 +62,11 @@ class Post(db.Model):
     
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
-        if self.activePost_id is not None:
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+<<<<<<< HEAD
+        if self.activePost_id != 0:
             self.edit_post_active_ind()
         else:
             self.new_post_active_ind()
@@ -78,16 +82,39 @@ class Post(db.Model):
         db.session.refresh(self)
         active.post_id = self.id
         db.session.add(active)
-        #db.session.commit()
+        db.session.commit()
 
     def edit_post_active_ind(self):
-        #db.session.add(self)
-        #db.session.flush()
-        #db.session.refresh(self)
-        active = activePost.query.get_or_404(self.activePost_id)
-        active.post_id = self.id
+        post = Post.query.filter_by(id=self.id).first()
+        active = activePost.query.get_or_404(post.activePost_id)
+        active.post_id = post.id
         db.session.add(active)
-        #db.session.commit()
+=======
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
+=======
+>>>>>>> parent of 44c77ec... finished activePosts basics
+        if self.activePost_id == 101:
+            new_active = activePost()
+            db.session.add(new_active)
+            db.session.flush()
+            db.session.refresh(new_active)
+            self.activePost_id = new_active.id
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            new_active.post_id = self.id
+            db.session.add(new_active)
+            #db.session.commit()
+        elif self.activePost_id is not None:
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            active = activePost.query.get(self.activePost_id)
+            active.post_id = self.id
+            db.session.add(active)
 
     @staticmethod
     def on_insert_new_post(self):
@@ -99,10 +126,8 @@ class Post(db.Model):
         db.session.refresh(new_active)
         self.activePost_id = activePost.id
         db.session.add(self.activePost)
+>>>>>>> parent of 44c77ec... finished activePosts basics
         db.session.commit()
-    #    #new_post_number = db.session.query(db.func.max(Post.post_number)).first()[0]
-
-    #def on_insert_change_post(self, )
         
     def to_json(self):
         json_post = {
@@ -123,10 +148,8 @@ class Post(db.Model):
             raise ValidationError('post does not have a body')
         return Post(body=body)
         
-
-#db.event.listen(Post.post_number, 'before_insert', Post.on_changed_body)        
+     
 db.event.listen(Post.body, 'set', Post.on_changed_body)
-#db.event.listen(Post.id, 'set', Post.on_insert_activePost)
 
 
 class Comment(db.Model):
