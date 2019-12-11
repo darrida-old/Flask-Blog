@@ -62,14 +62,12 @@ class Post(db.Model):
     
     def __init__(self, **kwargs):
         super(Post, self).__init__(**kwargs)
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
         if self.activePost_id != 0:
-            self.edit_post_active_ind()
+            pass
+            #self.edit_post_active_ind()
         else:
-            self.new_post_active_ind()
+            pass
+            #self.new_post_active_ind()
 
     def new_post_active_ind(self):
         active = activePost()
@@ -84,18 +82,16 @@ class Post(db.Model):
         db.session.add(active)
         db.session.commit()
 
+# I really should have documented what I made this for!!!
+# It's causing problems and I can't remember what it does (or if I'm replicating
+# it's purpose elsewhere now...)
     def edit_post_active_ind(self):
-        post = Post.query.filter_by(id=self.id).first()
-        active = activePost.query.get_or_404(post.activePost_id)
-        active.post_id = post.id
-        db.session.add(active)
-=======
-=======
->>>>>>> parent of 44c77ec... finished activePosts basics
-=======
->>>>>>> parent of 44c77ec... finished activePosts basics
-=======
->>>>>>> parent of 44c77ec... finished activePosts basics
+        #post = Post.query.filter_by(id=self.id).first()
+        active = activePost.query.get_or_404(self.activePost_id)#id=self.activePost_id)
+        #post = Post.query.filter_by(id=active.post_id).first()
+        if self.published == 1:
+            active.post_id = self.id
+        #db.session.add(active)
         if self.activePost_id == 101:
             new_active = activePost()
             db.session.add(new_active)
@@ -112,9 +108,11 @@ class Post(db.Model):
             db.session.add(self)
             db.session.flush()
             db.session.refresh(self)
-            active = activePost.query.get(self.activePost_id)
-            active.post_id = self.id
-            db.session.add(active)
+            
+            if self.published == 1:
+                active = activePost.query.get(self.activePost_id)
+                active.post_id = self.id
+                db.session.add(active)
 
     @staticmethod
     def on_insert_new_post(self):
@@ -126,7 +124,6 @@ class Post(db.Model):
         db.session.refresh(new_active)
         self.activePost_id = activePost.id
         db.session.add(self.activePost)
->>>>>>> parent of 44c77ec... finished activePosts basics
         db.session.commit()
         
     def to_json(self):
