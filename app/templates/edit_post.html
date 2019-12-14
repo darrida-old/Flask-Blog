@@ -4,6 +4,8 @@
 {% block title %}Theogeek - {{ action }} Post{% endblock %}
 
 {% block page_content %}
+
+
 <div class="page-header">
     <h1>{{ action }} Post</h1>
 </div>
@@ -11,11 +13,24 @@
     <input type="hidden" name="post_id" value="{{ form.id.data }}">
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
-        <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
+        <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
+        <div class="btn-group">
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
+          <span class="caret"></span></button>
+          <ul class="dropdown-menu">
+            <li class="dropdown-header">Dropdown header 1</li>
+            <li><a href="#">HTML</a></li>
+            <li><a href="#">CSS</a></li>
+            <li><a href="#">JavaScript</a></li>
+            <li class="divider"></li>
+            <li class="dropdown-header">Dropdown header 2</li>
+            <li><a href="#">About Us</a></li>
+          </ul>
+        </div>
         <span class="btn-group"  style="float: right">
-            <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
-            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
-            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
+          <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
+          <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
+          <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span>
         <br><br>
         <div><b>What am I called?</b><span name="post_status" style="float: right"><b>Status: {{ form.status.data }}</b></span></div>
@@ -28,6 +43,9 @@
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span><span id=result></span>
+        <!-- <span class="container"> -->
+          
+        <!-- </span> -->
     </form> 
         
 </div>
