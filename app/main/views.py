@@ -187,6 +187,7 @@ def edit(id):
     db.session.add(new_post)
     db.session.flush()
     db.session.refresh(new_post)
+    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).all()
     if current_user != post.author and not current_user.can(Permission.ADMIN):
         abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
@@ -224,7 +225,8 @@ def edit(id):
     elif post.published == 0:
         form.status.data = 'Saved Draft'
     action = 'Edit'
-    return render_template('edit_post.html', action=action, form=form)
+    return render_template('edit_post.html', action=action, form=form,
+                            history=history)
 
 
 @main.route('/edit/<int:id>/bak', methods=['GET', 'POST'])

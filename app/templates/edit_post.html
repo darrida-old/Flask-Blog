@@ -17,14 +17,14 @@
         <div class="btn-group">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
           <span class="caret"></span></button>
-          <ul class="dropdown-menu">
-            <li class="dropdown-header">Dropdown header 1</li>
-            <li><a href="#">HTML</a></li>
-            <li><a href="#">CSS</a></li>
-            <li><a href="#">JavaScript</a></li>
-            <li class="divider"></li>
+          <ul class="dropdown-menu pre-scrollable">
+            {% for version in history %}
+            <!-- <li class="dropdown-header">Dropdown header</li> -->
+            <li><a href="#">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a></li>
+            <!-- <li class="divider"></li>
             <li class="dropdown-header">Dropdown header 2</li>
-            <li><a href="#">About Us</a></li>
+            <li><a href="#">About Us</a></li> -->
+            {% endfor %}
           </ul>
         </div>
         <span class="btn-group"  style="float: right">
