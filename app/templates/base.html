@@ -25,7 +25,11 @@
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                {% if current_user.can(Permission.MODERATE) %}
+                {% if action %}
+                    {% if current_user.can(Permission.WRITE) %}
+                    <li><a href="{{ url_for('main.manage_posts') }}">Manage Posts</a></li>
+                    {% endif %}
+                {% elif current_user.can(Permission.MODERATE) %}
                     <li><a href="{{ url_for('main.moderate') }}">Moderate Comments</a></li>
                 {% endif %}
                 {% if current_user.is_authenticated %}

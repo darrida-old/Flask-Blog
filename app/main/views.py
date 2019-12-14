@@ -187,7 +187,7 @@ def edit(id):
     db.session.add(new_post)
     db.session.flush()
     db.session.refresh(new_post)
-    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).all()
+    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).order_by(Post.timestamp.desc()).all()
     if current_user != post.author and not current_user.can(Permission.ADMIN):
         abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
@@ -324,7 +324,13 @@ def manage_posts():
     show_followed = False
     if current_user.is_authenticated:
         show_followed = False#bool(request.cookies.get('show_followed', ''))
-    query = Post.query
+    #query = Post.query
+    active_posts_query = db.session.query(func.max(Post.id)).group_by(Post.activePost_id)
+    post_list = []
+    for tuple in active_posts_query:
+        for item in tuple:
+            post_list.append(item)
+    query = db.session.query(Post).filter(Post.id.in_((post_list)))
     pagination = query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
