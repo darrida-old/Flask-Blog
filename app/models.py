@@ -18,17 +18,25 @@ class Tag(db.Model):
 
 
 class postTag(db.Model):
-    __tablename = 'posttags'
+    __tablename__ = 'posttags'
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'),
                             primary_key=True)
     tag_id = db.Column(db.Integer, db.ForeignKey('tags.id'),
                             primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+# Table that controls which version of a post is the "current" version and if it is published
+class activePost(db.Model):
+    __tablename__ = 'active_posts'
+    id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    published = db.Column(db.Boolean, default=False)
+
 
 class Post(db.Model):
     __tablename__ = 'posts'
     id = db.Column(db.Integer, primary_key=True)
+    activePost_id = db.Column(db.Integer, nullable=False)
     title = db.Column(db.String(256))
     body = db.Column(db.Text)
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
@@ -36,8 +44,9 @@ class Post(db.Model):
     author_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     body_html = db.Column(db.Text)
     published = db.Column(db.Boolean, default=False)
-    comments = db.relationship('Comment', backref='post', lazy='dynamic')
+    comments = db.relationship('Comment', backref='posts', lazy='dynamic')
     tags = db.relationship('postTag', backref='posttags', lazy='dynamic')
+    active_posts = db.relationship('activePost', backref='active_posts', lazy='dynamic')
     
     @staticmethod
     def on_changed_body(target, value, oldvalue, initiator):
@@ -50,6 +59,72 @@ class Post(db.Model):
         target.body_html = bleach.linkify(bleach.clean(
                 markdown(value, output_format='html'),
                 tags=allowed_tags, attributes=allowed_attributes, strip=True))
+    
+    def __init__(self, **kwargs):
+        super(Post, self).__init__(**kwargs)
+        if self.activePost_id != 0:
+            pass
+            #self.edit_post_active_ind()
+        else:
+            pass
+            #self.new_post_active_ind()
+
+    def new_post_active_ind(self):
+        active = activePost()
+        db.session.add(active)
+        db.session.flush()
+        db.session.refresh(active)
+        self.activePost_id = active.id
+        db.session.add(self)
+        db.session.flush()
+        db.session.refresh(self)
+        active.post_id = self.id
+        db.session.add(active)
+        db.session.commit()
+
+# I really should have documented what I made this for!!!
+# It's causing problems and I can't remember what it does (or if I'm replicating
+# it's purpose elsewhere now...)
+    def edit_post_active_ind(self):
+        #post = Post.query.filter_by(id=self.id).first()
+        active = activePost.query.get_or_404(self.activePost_id)#id=self.activePost_id)
+        #post = Post.query.filter_by(id=active.post_id).first()
+        if self.published == 1:
+            active.post_id = self.id
+        #db.session.add(active)
+        if self.activePost_id == 101:
+            new_active = activePost()
+            db.session.add(new_active)
+            db.session.flush()
+            db.session.refresh(new_active)
+            self.activePost_id = new_active.id
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            new_active.post_id = self.id
+            db.session.add(new_active)
+            #db.session.commit()
+        elif self.activePost_id is not None:
+            db.session.add(self)
+            db.session.flush()
+            db.session.refresh(self)
+            
+            if self.published == 1:
+                active = activePost.query.get(self.activePost_id)
+                active.post_id = self.id
+                db.session.add(active)
+
+    @staticmethod
+    def on_insert_new_post(self):
+        new_active = activePost(self.id, 0)
+        #new_active.id = self.id
+        #new_active.published = 0
+        db.session.add(new_active)
+        db.session.flush()
+        db.session.refresh(new_active)
+        self.activePost_id = activePost.id
+        db.session.add(self.activePost)
+        db.session.commit()
         
     def to_json(self):
         json_post = {
@@ -70,7 +145,7 @@ class Post(db.Model):
             raise ValidationError('post does not have a body')
         return Post(body=body)
         
-        
+     
 db.event.listen(Post.body, 'set', Post.on_changed_body)
 
 
