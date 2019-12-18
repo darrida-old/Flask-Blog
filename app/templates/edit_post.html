@@ -9,9 +9,6 @@
 
     <!-- Modal Trigger with link in dropdown -->
     {% for version in history %}
-    <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-        {{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}
-    </a></li>
     <!-- Model from dropdown -->
     <div id="myModal{{ version.id }}" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -21,7 +18,7 @@
               <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">{{ version.title }}</h4>
               </div>
-              <div class="modal-body" id="markdown">
+              <div class="modal-body">
                 <p></p>{{ version.body }}</p>
               </div>
               <div class="modal-footer">
@@ -88,6 +85,7 @@
       var simplemde = new SimpleMDE({
                                      forceSync: true,
                                      tabSize: 4,
+                                     autosave: True,
                                      element: document.getElementById('markdown'),
                                      toolbar: ["bold", "italic", "strikethrough", "heading",
                                                 "|", "quote","unordered-list", "ordered-list",
@@ -113,7 +111,7 @@
     };
 
   $(function(){
-    setInterval(autosave,20000);
+    setInterval(autosave,200000000);
   });
 </script>
 {% endblock %}
