@@ -4,6 +4,7 @@
 {% block title %}Theogeek - {{ action }} Post{% endblock %}
 
 {% block page_content %}
+
 <div class="page-header">
     <h1>{{ action }} Post</h1>
 </div>
@@ -17,11 +18,10 @@
           <span class="caret"></span></button>
           <ul class="dropdown-menu pre-scrollable">
             {% for version in history %}
-            <!-- <li class="dropdown-header">Dropdown header</li> -->
-            <li><a href="#">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a></li>
-            <!-- <li class="divider"></li>
-            <li class="dropdown-header">Dropdown header 2</li>
-            <li><a href="#">About Us</a></li> -->
+            <li><a data-toggle="modal" href="#myModal{{ version.id }}">
+              {{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}
+              <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a>
+            </a></li>
             {% endfor %}
           </ul>
         </div>

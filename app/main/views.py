@@ -229,6 +229,53 @@ def edit(id):
                             history=history)
 
 
+@main.route('/history/<int:id>', methods=['GET', 'POST'])
+@login_required
+@permission_required(Permission.WRITE)
+def edit_history(id):
+    form = None
+    post = Post.query.get_or_404(id)
+    if post.id == None:
+        flash('Post not found')
+        return redirect(url_for('.manage_posts'))
+    if current_user != post.author and not current_user.can(Permission.ADMIN):
+        abort(403)   
+    if request.method=='POST' and request.form['submit']=='Close':
+        return redirect(url_for('.manage_posts'))
+    elif request.method=='POST' and current_user.can(Permission.WRITE):
+        if request.form['title'] == "" and request.form['body'] == "":
+            flash('Title and Body required')
+            return redirect(url_for('.edit', id=0))
+        else:
+            #new_post.title = request.form['title']
+            #new_post.body = request.form['body']
+            #new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            #new_post.activePost_id = post.activePost_id
+            #db.session.add(new_post)
+            #db.session.flush()
+            #db.session.refresh(new_post)
+            #db.session.commit()
+            if request.form['submit'] == 'Save Draft':
+                flash('The post has been updated as a draft.')
+                return redirect(url_for('.edit', id=post.id))
+            else:
+                flash('The post has been updated and published.')
+            if request.form['submit'] == 'Publish & Close':
+                return redirect(url_for('.post', id=post.id))
+    form = PostForm()
+    form.title.data = post.title
+    form.body.data = post.body
+    form.id.data = post.id
+    form.active_post.data = post.activePost_id
+    form.post_type.data = 'history'
+    if post.published == 1:
+        form.status.data = 'Published'
+    elif post.published == 0:
+        form.status.data = 'Saved Draft'
+    action = 'Version'
+    return render_template('edit_post_history.html', action=action, form=form, timestamp=post.timestamp)
+
+
 @main.route('/edit/<int:id>/bak', methods=['GET', 'POST'])
 @login_required
 @permission_required(Permission.WRITE)
@@ -313,7 +360,6 @@ def quick_save():
     db.session.add(post)
     db.session.commit()
     return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
-    
 
 
 @main.route('/manage', methods=['GET', 'POST'])

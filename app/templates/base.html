@@ -36,7 +36,7 @@
                     </a>
                     <ul class="dropdown-menu"> 
                         {% if current_user.can(Permission.WRITE) %}
-                        <li><a href="{{ url_for('main.edit', id=0) }}">Create Post</a></li>
+                        <li><a href="{{ url_for('main.edit_new') }}">Create Post</a></li>
                         {% endif %}
                         {% if current_user.can(Permission.WRITE) %}
                         <li><a href="{{ url_for('main.manage_posts', id=0) }}">Manage Posts</a></li>
