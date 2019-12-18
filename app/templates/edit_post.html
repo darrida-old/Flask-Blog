@@ -3,36 +3,7 @@
 
 {% block title %}Theogeek - {{ action }} Post{% endblock %}
 
-<body>
 {% block page_content %}
-
-
-    <!-- Modal Trigger with link in dropdown -->
-    {% for version in history %}
-    <!-- Model from dropdown -->
-    <div id="myModal{{ version.id }}" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-        <!-- Modal content from dropdown-->
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">{{ version.title }}</h4>
-              </div>
-              <div class="modal-body">
-                <p></p>{{ version.body }}</p>
-              </div>
-              <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-          </div>
-        </div>
-      </div>
-    {% endfor %}
-
-
-
-
-
 <div class="page-header">
     <h1>{{ action }} Post</h1>
 </div>
@@ -42,17 +13,18 @@
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
         <div class="btn-group">
-            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
-            <span class="caret"></span></button>
-            <ul class="dropdown-menu pre-scrollable">
-              <!-- Modal Trigger with link in dropdown -->
-              {% for version in history %}
-              <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-                  {{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}
-              </a></li>
-              {% endfor %}
-            </ul>
-          </div>
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
+          <span class="caret"></span></button>
+          <ul class="dropdown-menu pre-scrollable">
+            {% for version in history %}
+            <!-- <li class="dropdown-header">Dropdown header</li> -->
+            <li><a href="#">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a></li>
+            <!-- <li class="divider"></li>
+            <li class="dropdown-header">Dropdown header 2</li>
+            <li><a href="#">About Us</a></li> -->
+            {% endfor %}
+          </ul>
+        </div>
         <span class="btn-group"  style="float: right">
           <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
           <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
@@ -76,8 +48,9 @@
         
 </div>
 <br>
+
+
 {% endblock %}
-</body>
 
 {% block scripts %}
 {{ super() }}
