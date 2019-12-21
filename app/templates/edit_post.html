@@ -18,10 +18,11 @@
           <span class="caret"></span></button>
           <ul class="dropdown-menu pre-scrollable">
             {% for version in history %}
-            <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-              {{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}
-              <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a>
-            </a></li>
+              {% if version.id != form.id %}
+              <li><a data-toggle="modal" href="#myModal{{ version.id }}">
+                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a>
+              </a></li>
+              {% endif %}
             {% endfor %}
           </ul>
         </div>
@@ -70,6 +71,10 @@
     $('a#quick-submit').bind('click', autosave);
   });
   
+  $('a#quick-submit').click(function() {
+    setInterval(autosave,20000);
+  });
+  
   function autosave() {
       $.getJSON($SCRIPT_ROOT + '/_quick_save', {
         post_id: $('input[name="post_id"]').val(),
@@ -81,9 +86,6 @@
       });
       return false;
     };
-
-  $(function(){
-    setInterval(autosave,200000000);
-  });
+ ;
 </script>
 {% endblock %}

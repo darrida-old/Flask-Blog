@@ -179,6 +179,7 @@ def edit(id):
         return redirect(url_for('.manage_posts'))
     #else:
     #    post = Post.query.filter_by(id=url_id.post_id).first()
+    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).order_by(Post.timestamp_edited.desc()).all()
     new_post = Post(title=post.title, 
                     body=post.body,
                     published=post.published,
@@ -187,7 +188,8 @@ def edit(id):
     db.session.add(new_post)
     db.session.flush()
     db.session.refresh(new_post)
-    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).all()
+    current = post.id
+    
     if current_user != post.author and not current_user.can(Permission.ADMIN):
         abort(403)   
     if request.method=='POST' and request.form['submit']=='Close':
@@ -247,14 +249,6 @@ def edit_history(id):
             flash('Title and Body required')
             return redirect(url_for('.edit', id=0))
         else:
-            #new_post.title = request.form['title']
-            #new_post.body = request.form['body']
-            #new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
-            #new_post.activePost_id = post.activePost_id
-            #db.session.add(new_post)
-            #db.session.flush()
-            #db.session.refresh(new_post)
-            #db.session.commit()
             if request.form['submit'] == 'Save Draft':
                 flash('The post has been updated as a draft.')
                 return redirect(url_for('.edit', id=post.id))
@@ -276,71 +270,6 @@ def edit_history(id):
     return render_template('edit_post_history.html', action=action, form=form, timestamp=post.timestamp_edited, id=id)
 
 
-@main.route('/edit/<int:id>/bak', methods=['GET', 'POST'])
-@login_required
-@permission_required(Permission.WRITE)
-def edit_bak(id):
-    if id > 0: 
-        form = None
-        #post = Post.query.get_or_404(id)
-        url_id = activePost.query.filter_by(id=id).filter_by(published=1).first()
-        post = Post.query.filter_by(activePost_id=url_id.id).filter_by(published=1).first()
-        new_post = Post(title=post.title, 
-                        body=post.body,
-                        published=post.published,
-                        activePost_id = post.activePost_id,
-                        author=current_user._get_current_object())
-        db.session.add(new_post)
-        db.session.flush()
-        db.session.refresh(new_post)
-    else:
-        new_post = Post(title="", body="", published=0, activePost_id=0, author=current_user._get_current_object())
-        post_new = Post(title="", body="", published=0, activePost_id=None, author=current_user._get_current_object())
-        db.session.add(post)
-        db.session.flush()
-        db.session.refresh(post)
-    if current_user != post.author and id > 0 and not current_user.can(Permission.ADMIN):
-            abort(403)   
-    if request.method=='POST' and request.form['submit']=='Close':
-        flash('The post was not updated.')
-        db.session.rollback()
-        return redirect(url_for('.manage_posts'))
-    elif request.method=='POST' and current_user.can(Permission.WRITE):
-        if request.form['title'] == "" and request.form['body'] == "":
-            flash('Title and Body required')
-            return redirect(url_for('.edit', id=0))
-        else:
-            post_new.title=request.form['title']
-            post_new.body=request.form['body']
-            post_new.published=(0 if request.form['submit']=='Save Draft' else 1)
-            if post.activePost_id is not None:
-                post_new.activePost_id = post.activePost_id
-            db.session.add(post_new)
-            db.session.flush()
-            db.session.refresh(post_new)
-            db.session.commit()
-            if request.form['submit']=='Save Draft':
-                flash('The post has been updated as a draft.')
-                return redirect(url_for('.edit', id=post_new.id))
-            else:
-                flash('The post has been updated and published.')
-            if request.form['submit']=='Publish':
-                return redirect(url_for('.post', id=post_new.id))
-    form = PostForm()
-    form.title.data = post.title
-    form.body.data = post.body
-    form.id.data = post.id
-    if id > 0:
-        if post.published == 1:
-            form.status.data = 'Published'
-        elif post.published == 0:
-            form.status.data = 'Saved Draft'
-    else:
-        form.status.data = 'Not Saved'
-    action = ('Edit' if id > 0 else 'Create')
-    return render_template('edit_post.html', action=action, form=form)
-
-
 @main.route('/_add_numbers')
 def add_numbers():
     a = request.args.get('a', 0, type=int)
@@ -352,6 +281,20 @@ def add_numbers():
 @login_required
 @permission_required(Permission.WRITE)
 def quick_save():
+    post_id=request.args.get('post_id', 0, type=int)
+    post = Post.query.get_or_404(post_id)
+    post.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
+    post.title=request.args.get('post_title', 0, type=str)
+    post.body=request.args.get('post_body', 0, type=str)
+    db.session.add(post)
+    db.session.commit()
+    return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
+
+
+@main.route('/_draft_save')
+@login_required
+@permission_required(Permission.WRITE)
+def draft_save():
     post_id=request.args.get('post_id', 0, type=int)
     post = Post.query.get_or_404(post_id)
     post.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
