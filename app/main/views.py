@@ -272,8 +272,8 @@ def edit_history(id):
         form.status.data = 'Published'
     elif post.published == 0:
         form.status.data = 'Saved Draft'
-    action = 'Version'
-    return render_template('edit_post_history.html', action=action, form=form, timestamp=post.timestamp)
+    action = 'History'
+    return render_template('edit_post_history.html', action=action, form=form, timestamp=post.timestamp_edited, id=id)
 
 
 @main.route('/edit/<int:id>/bak', methods=['GET', 'POST'])
