@@ -228,7 +228,7 @@ def edit(id):
         form.status.data = 'Saved Draft'
     action = 'Edit'
     return render_template('edit_post.html', action=action, form=form,
-                            history=history)
+                            history=history, post=post)
 
 
 @main.route('/history/<int:id>', methods=['GET', 'POST'])
@@ -286,6 +286,7 @@ def quick_save():
     post.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
     post.title=request.args.get('post_title', 0, type=str)
     post.body=request.args.get('post_body', 0, type=str)
+    post.timestamp_edited=datetime.utcnow()
     db.session.add(post)
     db.session.commit()
     return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
@@ -295,14 +296,26 @@ def quick_save():
 @login_required
 @permission_required(Permission.WRITE)
 def draft_save():
-    post_id=request.args.get('post_id', 0, type=int)
-    post = Post.query.get_or_404(post_id)
-    post.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
-    post.title=request.args.get('post_title', 0, type=str)
-    post.body=request.args.get('post_body', 0, type=str)
-    db.session.add(post)
+    max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0]
+    new_post_version = Post()
+    new_post_version.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
+    new_post_version.title=request.args.get('post_title', 0, type=str)
+    new_post_version.body=request.args.get('post_body', 0, type=str)
+    new_post_version.activePost_id=max_post_id  
+    db.session.add(new_post_version)
+    db.session.flush()
+    db.session.refresh(new_post_version)
     db.session.commit()
-    return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
+    post_id=new_post_version.id
+    post = Post.query.get_or_404(post_id)
+    new_published = ("Saved Draft" if 0 else "Published")
+    return jsonify(post_id=post.id, 
+                   post_title=post.title, 
+                   post_body=post.body, 
+                   published=f"Status: {new_published}",
+                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}")
+                   #timestamp_edited=post.timestamp_edited)
+        #result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
 
 @main.route('/manage', methods=['GET', 'POST'])

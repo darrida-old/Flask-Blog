@@ -7,12 +7,14 @@
 
 <div class="page-header">
     <h1>{{ action }} Post</h1>
+    <div><span name="post_date" id="post_date"> Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm a') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm a') }}</span></div>
 </div>
 <div>   
-    <input type="hidden" name="post_id" value="{{ form.id.data }}">
+    <input type="hidden" name="post_id" id="post_id" value="{{ form.id.data }}">
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
+        <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Draft Version </a></div>
         <div class="btn-group">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
           <span class="caret"></span></button>
@@ -20,7 +22,7 @@
             {% for version in history %}
               {% if version.id != form.id %}
               <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp).format('YYYY/MM/DD, h:mm a') }}</a>
+                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm a') }}</a>
               </a></li>
               {% endif %}
             {% endfor %}
@@ -32,9 +34,9 @@
           <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span>
         <br><br>
-        <div><b>What am I called?</b><span name="post_status" style="float: right"><b>Status: {{ form.status.data }}</b></span></div>
-        <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
-        <b>Tell me a story</b>
+        <div><b>What am I called?</b><span name="post_status" style="float: right; font-weight: bold" id="post_status">Status: {{ form.status.data }}</span></div>
+        <input type="text" class="form-control" name="title" id="title" value="{{ form.title.data }}"><br>
+        <div><b>Tell me a story</b></div>
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
         <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
         <span class="btn-group"  style="float: right">
@@ -83,6 +85,28 @@
         post_body: $(document.getElementById('markdown')).val()
       }, function(data) {
         $("#result").text(data.result);
+      });
+      return false;
+    };
+ ;
+</script>
+<script type=text/javascript>
+  $(function() {
+    $('a#draft-save').bind('click', draftsave);
+  });
+  
+  function draftsave() {
+      $.getJSON($SCRIPT_ROOT + '/_draft_save', {
+        post_id: $('input[name="post_id"]').val(),
+        post_status: $('input[name="post_status"]').val(),
+        post_title: $('input[name="title"]').val(),
+        post_body: $(document.getElementById('markdown')).val()
+      }, function(data) {
+        $("#post_status").text(data.published);
+        $("#post_title").text(data.title);
+        $("#markdown").text(data.post_body);
+        $("#post_id").val(data.post_id);
+        $("#post_date").text(data.timestamp)
       });
       return false;
     };

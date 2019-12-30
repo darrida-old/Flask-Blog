@@ -3,7 +3,16 @@
     padding-left: 15px;
     margin-right: auto;
     margin-left: auto;
+    padding-top: 0px;
     max-width: 750px;
+}
+.navbar {
+    margin-bottom: 0px;
+}
+.page-header {
+    padding-bottom: 0px;
+    margin: 10px 0 20px;
+    border-bottom: 1px solid #eee;
 }
 img[src*="post-image-large"] {
    max-width:625px;
