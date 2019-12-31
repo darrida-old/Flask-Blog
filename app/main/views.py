@@ -180,6 +180,7 @@ def edit(id):
         return redirect(url_for('.manage_posts'))
     #else:
     #    post = Post.query.filter_by(id=url_id.post_id).first()
+#CLEAN I think I can use "history" to count versions rather than the "versions" query further below (thus only don't 1 query instead of 2)
     history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).order_by(Post.timestamp_edited.desc()).all()
     new_post = Post(title=post.title, 
                     body=post.body,
@@ -228,8 +229,17 @@ def edit(id):
     elif post.published == 0:
         form.status.data = 'Saved Draft'
     action = 'Edit'
+    #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
+    versions = Post.query.filter_by(activePost_id=post.activePost_id).all()
+    version_number = 0
+    for version in versions:
+        version_number += 1
+    #END
     return render_template('edit_post.html', action=action, form=form,
-                            history=history, post=post)
+#CLEAN The "-1" is because the function creates a post in memory and flushes it to send it to the db without committing.
+#      I believe any code that actually commits to the db in this function can be removed, because of the now existing 
+#      jquery functionality.
+                            history=history, post=post, version_number=version_number - 1)
 
 
 @main.route('/history/<int:id>', methods=['GET', 'POST'])
@@ -334,10 +344,13 @@ def draft_save():
     db.session.flush()
     db.session.refresh(new_post_version)
     db.session.commit()
+    #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
+    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != new_post_version.id).order_by(Post.timestamp_edited.desc()).all()
     versions = Post.query.filter_by(activePost_id=new_post_version.activePost_id).all()
     version_number = 0
     for version in versions:
         version_number += 1
+    #END
     post_id=new_post_version.id
     post = Post.query.get_or_404(post_id)
     new_published = ("Saved Draft" if post.published==0 else "Published")
@@ -345,8 +358,9 @@ def draft_save():
                    post_title=post.title, 
                    post_body=post.body, 
                    published=f"Status: {new_published}",
-                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}")#,
-                   #version_number=version_number)
+                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}",
+                   version_number=version_number)#,
+                   #history=history)
                    #timestamp_edited=post.timestamp_edited)
         #result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
