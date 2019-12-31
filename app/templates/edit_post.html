@@ -17,7 +17,7 @@
         <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Version </a></div>
         <div class="btn-group">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Version History <span class="caret"></span></button>
-          <ul class="dropdown-menu pre-scrollable">
+          <ul class="dropdown-menu pre-scrollable" id="history">
             {% for version in history %}
               {% if version.id != form.id %}
               <li><a data-toggle="modal" href="#myModal{{ version.id }}">

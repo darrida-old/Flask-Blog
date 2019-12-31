@@ -344,8 +344,19 @@ def draft_save():
     db.session.flush()
     db.session.refresh(new_post_version)
     db.session.commit()
+    #BEGIN Create history list as html string
+    history = Post.query.filter(Post.activePost_id==new_post_version.activePost_id).filter(Post.id != new_post_version.id).order_by(Post.timestamp_edited.desc()).all()
+    #print(history)
+    history_html = """"""
+    for item in history:
+        history_html = history_html + f"""
+            <li><a data-toggle="modal" href="#myModal{item.id}"></a>
+                <a href="/history/{item.id}" target="_blank">
+                    <span class="" data-refresh="0" style="">{item.timestamp_edited}</span>
+                </a>
+            </li>"""
+    #END
     #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
-    history = Post.query.filter(Post.activePost_id==id).filter(Post.id != new_post_version.id).order_by(Post.timestamp_edited.desc()).all()
     versions = Post.query.filter_by(activePost_id=new_post_version.activePost_id).all()
     version_number = 0
     for version in versions:
@@ -359,8 +370,8 @@ def draft_save():
                    post_body=post.body, 
                    published=f"Status: {new_published}",
                    timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}",
-                   version_number=version_number)#,
-                   #history=history)
+                   version_number=version_number,
+                   history=history_html)
                    #timestamp_edited=post.timestamp_edited)
         #result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
