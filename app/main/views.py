@@ -292,6 +292,25 @@ def quick_save():
     return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
 
+@main.route('/_published_switch')
+@login_required
+@permission_required(Permission.WRITE)
+def published_switch():
+    post_id=request.args.get('post_id', 0, type=int)
+    post = Post.query.get_or_404(post_id)
+    post.published=(False if request.args.get('post_status', 0, type=str)=='Published' else True)
+    post.title=request.args.get('post_title', 0, type=str)
+    post.body=request.args.get('post_body', 0, type=str)
+    post.timestamp_edited=datetime.utcnow()
+    db.session.add(post)
+    db.session.flush()
+    db.session.refresh(post)
+    db.session.commit()
+    new_published = ("Publish" if post.published==0 else "Unpublish")
+    return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")),
+                   published_switch=f"{new_published}")
+
+
 @main.route('/_draft_save')
 @login_required
 @permission_required(Permission.WRITE)
@@ -302,13 +321,14 @@ def draft_save():
     new_post_version.title=request.args.get('post_title', 0, type=str)
     new_post_version.body=request.args.get('post_body', 0, type=str)
     new_post_version.activePost_id=max_post_id  
+    new_post_version.author=current_user._get_current_object()
     db.session.add(new_post_version)
     db.session.flush()
     db.session.refresh(new_post_version)
     db.session.commit()
     post_id=new_post_version.id
     post = Post.query.get_or_404(post_id)
-    new_published = ("Saved Draft" if 0 else "Published")
+    new_published = ("Saved Draft" if post.published==0 else "Published")
     return jsonify(post_id=post.id, 
                    post_title=post.title, 
                    post_body=post.body, 

@@ -15,6 +15,7 @@
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
         <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Draft Version </a></div>
+        <div class="btn-group"><a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a></div>
         <div class="btn-group">
           <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
           <span class="caret"></span></button>
@@ -29,7 +30,7 @@
           </ul>
         </div>
         <span class="btn-group"  style="float: right">
-          <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
+          <a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a>
           <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
           <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span>
@@ -40,7 +41,6 @@
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
         <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
         <span class="btn-group"  style="float: right">
-            <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save Draft">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span><span id=result></span>
@@ -111,5 +111,23 @@
       return false;
     };
  ;
+</script>
+<script>
+  $(function() {
+    $('a#published-switch').bind('click', published_switch);
+  });
+  
+  function published_switch() {
+      $.getJSON($SCRIPT_ROOT + '/_published_switch', {
+        post_id: $('input[name="post_id"]').val(),
+        post_status: $('input[name="post_status"]').val(),
+        post_title: $('input[name="title"]').val(),
+        post_body: $(document.getElementById('markdown')).val()
+      }, function(data) {
+        $("#result").text(data.result);
+        $("#published-switch").text(data.published_switch);
+      });
+      return false;
+    };
 </script>
 {% endblock %}
