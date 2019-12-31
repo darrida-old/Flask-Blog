@@ -25,6 +25,7 @@ def index():
     else:
         active_posts_query = db.session.query(func.max(Post.id)) \
                                               .group_by(Post.activePost_id)# \
+#CLEAN Remove this eventually
                                               #.filter(Post.published==True) REMOVED 12/31/19
         post_list = []
         for tuple in active_posts_query:
