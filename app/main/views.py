@@ -307,6 +307,11 @@ def published_switch():
     db.session.flush()
     db.session.refresh(post)
     db.session.commit()
+    versions = Post.query.filter_by(activePost_id=post.activePost_id).all()
+    number = 0
+    for version in versions:
+        number += 1
+    print(number)
     publish_switch = ("Unpublish" if post.published==1 else "Publish")
     publish_state = ("Status: Saved Draft" if post.published==0 else "Status: Published")
     return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")),
@@ -329,6 +334,10 @@ def draft_save():
     db.session.flush()
     db.session.refresh(new_post_version)
     db.session.commit()
+    versions = Post.query.filter_by(activePost_id=new_post_version.activePost_id).all()
+    version_number = 0
+    for version in versions:
+        version_number += 1
     post_id=new_post_version.id
     post = Post.query.get_or_404(post_id)
     new_published = ("Saved Draft" if post.published==0 else "Published")
@@ -336,7 +345,8 @@ def draft_save():
                    post_title=post.title, 
                    post_body=post.body, 
                    published=f"Status: {new_published}",
-                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}")
+                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}")#,
+                   #version_number=version_number)
                    #timestamp_edited=post.timestamp_edited)
         #result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
