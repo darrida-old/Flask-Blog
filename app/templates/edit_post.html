@@ -14,10 +14,10 @@
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
-        <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Draft Version </a></div>
-        <div class="btn-group"><a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a></div>
+        <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Version </a></div>
+        
         <div class="btn-group">
-          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">History
+          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Version History
           <span class="caret"></span></button>
           <ul class="dropdown-menu pre-scrollable">
             {% for version in history %}
@@ -31,7 +31,6 @@
         </div>
         <span class="btn-group"  style="float: right">
           <a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a>
-          <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
           <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span>
         <br><br>
@@ -41,7 +40,6 @@
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
         <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
         <span class="btn-group"  style="float: right">
-            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span><span id=result></span>
         <!-- <span class="container"> -->
@@ -120,12 +118,13 @@
   function published_switch() {
       $.getJSON($SCRIPT_ROOT + '/_published_switch', {
         post_id: $('input[name="post_id"]').val(),
-        post_status: $('input[name="post_status"]').val(),
+        published_switch: $('input[name="published_switch"]').val(),
         post_title: $('input[name="title"]').val(),
         post_body: $(document.getElementById('markdown')).val()
       }, function(data) {
         $("#result").text(data.result);
         $("#published-switch").text(data.published_switch);
+        $("#post_status").text(data.post_status)
       });
       return false;
     };

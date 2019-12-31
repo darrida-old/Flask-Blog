@@ -24,13 +24,13 @@ def index():
     ############## ...and HERE
     else:
         active_posts_query = db.session.query(func.max(Post.id)) \
-                                              .group_by(Post.activePost_id) \
-                                              .filter(Post.published==True)
+                                              .group_by(Post.activePost_id)# \
+                                              #.filter(Post.published==True) REMOVED 12/31/19
         post_list = []
         for tuple in active_posts_query:
             for item in tuple:
                 post_list.append(item)
-        query = db.session.query(Post).filter(Post.id.in_((post_list)))
+        query = db.session.query(Post).filter(Post.id.in_((post_list))).filter(Post.published==True)
     pagination = query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
@@ -298,7 +298,7 @@ def quick_save():
 def published_switch():
     post_id=request.args.get('post_id', 0, type=int)
     post = Post.query.get_or_404(post_id)
-    post.published=(False if request.args.get('post_status', 0, type=str)=='Published' else True)
+    post.published=(True if post.published==0 else False)
     post.title=request.args.get('post_title', 0, type=str)
     post.body=request.args.get('post_body', 0, type=str)
     post.timestamp_edited=datetime.utcnow()
@@ -306,9 +306,11 @@ def published_switch():
     db.session.flush()
     db.session.refresh(post)
     db.session.commit()
-    new_published = ("Publish" if post.published==0 else "Unpublish")
+    publish_switch = ("Unpublish" if post.published==1 else "Publish")
+    publish_state = ("Status: Saved Draft" if post.published==0 else "Status: Published")
     return jsonify(result="Last save: " + str(datetime.now().strftime("%I:%M:%S")),
-                   published_switch=f"{new_published}")
+                   published_switch=f"{publish_switch}",
+                   post_status=publish_state)
 
 
 @main.route('/_draft_save')
