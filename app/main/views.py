@@ -181,6 +181,7 @@ def edit(id):
     #else:
     #    post = Post.query.filter_by(id=url_id.post_id).first()
 #CLEAN I think I can use "history" to count versions rather than the "versions" query further below (thus only don't 1 query instead of 2)
+#      Actually, I can probably use the html string creation from the "draft_save" function below and get rid of interating with jinja2 altogther
     history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).order_by(Post.timestamp_edited.desc()).all()
     new_post = Post(title=post.title, 
                     body=post.body,
@@ -344,9 +345,8 @@ def draft_save():
     db.session.flush()
     db.session.refresh(new_post_version)
     db.session.commit()
-    #BEGIN Create history list as html string
+    #BEGIN Create updated history list as html string to past back to the page
     history = Post.query.filter(Post.activePost_id==new_post_version.activePost_id).filter(Post.id != new_post_version.id).order_by(Post.timestamp_edited.desc()).all()
-    #print(history)
     history_html = """"""
     for item in history:
         history_html = history_html + f"""
@@ -357,6 +357,8 @@ def draft_save():
             </li>"""
     #END
     #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
+    #TODO Can use info from here to reduce this to one line:
+    #     https://stackoverflow.com/questions/34692571/how-to-use-count-in-flask-sqlalchemy to 
     versions = Post.query.filter_by(activePost_id=new_post_version.activePost_id).all()
     version_number = 0
     for version in versions:
