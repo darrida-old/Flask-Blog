@@ -5,7 +5,9 @@
                 {% if post.author.gravatar %}
                 <div class="profile-thumbnail">
                     <a href="{{ url_for('.user', username=post.author.username) }}">
-                        <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+                        {% if post.author.gravatar %}
+                            <img class="img-rounded profile-thumbnail" src="{{ post.author.gravatar(size=40) }}">
+                        {% endif %}
                     </a>
                 </div>
                 {% endif %}
