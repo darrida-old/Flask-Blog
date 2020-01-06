@@ -8,7 +8,8 @@ from .forms import EditProfileForm, EditProfileAdminForm, PostForm, CommentForm
 from .. import db
 from ..models import User, Role, Post, Permission, Comment, postTag, activePost
 from ..decorators import admin_required, permission_required
-from datetime import datetime
+from datetime import datetime, tzinfo
+from tzlocal import get_localzone
 
 
 
@@ -341,6 +342,8 @@ def draft_save():
     new_post_version.body=request.args.get('post_body', 0, type=str)
     new_post_version.activePost_id=max_post_id  
     new_post_version.author=current_user._get_current_object()
+    new_post_version.timestamp=datetime.utcnow()
+    new_post_version.timestamp_edited=datetime.utcnow()
     db.session.add(new_post_version)
     db.session.flush()
     db.session.refresh(new_post_version)
@@ -352,7 +355,7 @@ def draft_save():
         history_html = history_html + f"""
             <li><a data-toggle="modal" href="#myModal{item.id}"></a>
                 <a href="/history/{item.id}" target="_blank">
-                    <span class="" data-refresh="0" style="">{item.timestamp_edited}</span>
+                    <span class="" data-refresh="0" style="">{item.timestamp_edited.strftime('%Y/%m/%d, %I:%M %p')}</span>
                 </a>
             </li>"""
     #END
@@ -371,7 +374,8 @@ def draft_save():
                    post_title=post.title, 
                    post_body=post.body, 
                    published=f"Status: {new_published}",
-                   timestamp=f"Created: {post.timestamp} | Last edit: {post.timestamp_edited}",
+                   timestamp=f"Created: {post.timestamp.strftime('%Y/%m/%d, %I:%M %p')} "
+                           + f"| Last edit: {post.timestamp_edited.strftime('%Y/%m/%d, %I:%M %p')}",
                    version_number=version_number,
                    history=history_html)
                    #timestamp_edited=post.timestamp_edited)

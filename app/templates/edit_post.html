@@ -18,7 +18,7 @@
 
 <div class="page-header">
     <h1>{{ action }} Post</h1>
-    <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm a') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm a') }}</span></div>
+    <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</span></div>
 </div>
 <div>   
     <input type="hidden" name="post_id" id="post_id" value="{{ form.id.data }}">
@@ -32,7 +32,7 @@
             {% for version in history %}
               {% if version.id != form.id %}
               <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm a') }}</a>
+                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</a>
               </a></li>
               {% endif %}
             {% endfor %}
