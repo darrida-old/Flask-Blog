@@ -10,6 +10,16 @@ import bleach
 from app.exceptions import ValidationError
 
 
+# I think I can build a url end point for this where I can call the url end point from blog posts
+# (will have to be able to dynamically create it) - then I won't have to actually link the images to a post.
+# Though that might be nice too.
+class Image(db.Model):
+    __tablename__ = 'images'
+    id = db.Column(db.Integer,primary_key=True)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    image = db.Column(db.LargeBinary)
+
+
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
@@ -25,12 +35,15 @@ class postTag(db.Model):
                             primary_key=True)
     date_created = db.Column(db.DateTime, default=datetime.utcnow)
 
+
+#BEGIN NO LONGER USED
 # Table that controls which version of a post is the "current" version and if it is published
 class activePost(db.Model):
     __tablename__ = 'active_posts'
     id = db.Column(db.Integer, primary_key=True)
     post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
     published = db.Column(db.Boolean, default=False)
+#END
 
 
 class Post(db.Model):
