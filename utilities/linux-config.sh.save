@@ -1,0 +1,20 @@
+#!/bin/bash
+#
+#Purpose of script:
+#  -Expidite setting heroku config each time
+#
+##############################################
+set FLASK_APP=flasky.py
+echo FLASK_APP=flasky.py
+set FLASK_CONFIG=development
+echo FLASK_CONFIG=development
+set FLASKY_ADMIN=bentestflask@gmail.com
+echo FLASKY_ADMIN=bentestflask@gmail.com
+set SECRET_KEY=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+echo SECRET_KEY Set
+set MAIL_USERNAME=bentestflask@gmail.com
+echo ""
+echo ***Set the MAIL_PASSWORD manually***
+echo ""
+##############################################
+# Contact: darrida | darrida.py@gmail.com | tech.theogeek.com
