@@ -22,7 +22,7 @@
 </div>
 <div>   
     <input type="hidden" name="post_id" id="post_id" value="{{ form.id.data }}">
-    <span type="hidden" name="published_status" id="published_status" value="{{ post.published }}"></span>
+    <span type="hidden" name="published_status" id="published_status" value="{% if post %}{{ post.published }}{% endif %}"></span>
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>

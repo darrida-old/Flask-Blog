@@ -339,6 +339,10 @@ def published_switch():
 @login_required
 @permission_required(Permission.WRITE)
 def draft_save():
+    # FIXME: When creating a new post and this option is selected it doesn't create a new post.
+    #        Instead it creates a new revision of an existing post (it may just create a new revision
+    #        of whatever the highest blog post number is at the time). This needs to be fixed before I 
+    #        can use this to create blog posts.
     max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0]
     new_post_version = Post()
     new_post_version.published=(False if request.args.get('published_status', 0, type=str)==False else True)
