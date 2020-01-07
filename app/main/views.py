@@ -129,7 +129,11 @@ def moderate_disable(id):
 @login_required
 @permission_required(Permission.WRITE)
 def edit_new():
-    max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0]
+    # FIXME: If there are no posts in the database, it's questionable whether or not this works. Last time I ran into this I
+    #        quickly manually created a post through the flask shell with an activePost_id of 1.
+    max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0] + 1
+    if max_post_id == None:
+        max_post_id == 1
     new_post = Post(title="", body="", published=0, activePost_id=max_post_id, author=current_user._get_current_object())
     db.session.add(new_post)
     db.session.flush()
@@ -337,7 +341,7 @@ def published_switch():
 def draft_save():
     max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0]
     new_post_version = Post()
-    new_post_version.published=(False if request.args.get('post_status', 0, type=str)=='Saved Draft' else True)
+    new_post_version.published=(False if request.args.get('published_status', 0, type=str)==False else True)
     new_post_version.title=request.args.get('post_title', 0, type=str)
     new_post_version.body=request.args.get('post_body', 0, type=str)
     new_post_version.activePost_id=max_post_id  

@@ -18,10 +18,11 @@
 
 <div class="page-header">
     <h1>{{ action }} Post</h1>
-    <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</span></div>
+    <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> {% if post %}Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}{% endif %}</span></div>
 </div>
 <div>   
     <input type="hidden" name="post_id" id="post_id" value="{{ form.id.data }}">
+    <span type="hidden" name="published_status" id="published_status" value="{{ post.published }}"></span>
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
         <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
@@ -110,11 +111,11 @@
   function draftsave() {
       $.getJSON($SCRIPT_ROOT + '/_draft_save', {
         post_id: $('input[name="post_id"]').val(),
-        post_status: $('input[name="post_status"]').val(),
+        post_status: $('input[name="published_status"]').val(),
         post_title: $('input[name="title"]').val(),
         post_body: $(document.getElementById('markdown')).val()
       }, function(data) {
-        $("#post_status").text(data.published);
+        $("#published_status").text(data.published);
         $("#post_title").text(data.title);
         $("#markdown").text(data.post_body);
         $("#post_id").val(data.post_id);
