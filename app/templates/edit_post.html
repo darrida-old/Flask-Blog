@@ -18,37 +18,51 @@
 
 <div class="page-header">
     <h1>{{ action }} Post</h1>
-    <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> {% if post %}Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}{% endif %}</span></div>
+    {% if action == 'Edit' %}
+      <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> {% if post %}Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}{% endif %}</span></div>
+    {% endif %}
 </div>
 <div>   
     <input type="hidden" name="post_id" id="post_id" value="{{ form.id.data }}">
     <span type="hidden" name="published_status" id="published_status" value="{% if post %}{{ post.published }}{% endif %}"></span>
     <form method="POST" class="form" role="form">
         {{ form.csrf_token }}
-        <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
-        <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Version </a></div>
-        <div class="btn-group">
-          <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Version History <span class="caret"></span></button>
-          <ul class="dropdown-menu pre-scrollable" id="history">
-            {% for version in history %}
-              {% if version.id != form.id %}
-              <li><a data-toggle="modal" href="#myModal{{ version.id }}">
-                <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</a>
-              </a></li>
-              {% endif %}
-            {% endfor %}
-          </ul>
-        </div>
-        <span class="btn-group"  style="float: right">
-          <a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a>
-          <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
-        </span>
+        {% if action == 'Edit' %}
+          <div class="btn-group"><a class="btn btn-default" href=# id=quick-submit>Quick Save</a></div>
+          <div class="btn-group"><a class="btn btn-default" href=# id=draft-save>New Version </a></div>
+          <div class="btn-group">
+            <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown">Version History <span class="caret"></span></button>
+            <ul class="dropdown-menu pre-scrollable" id="history">
+            <!--CLEAN: The creation of html for for now exists in the save_draft view.
+                      It could be used for the edit view too, then I can get rid of
+                      redundant ways to populate this dropdown--> 
+              {% for version in history %}
+                {% if version.id != form.id %}
+                <li><a data-toggle="modal" href="#myModal{{ version.id }}">
+                  <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</a>
+                </a></li>
+                {% endif %}
+              {% endfor %}
+            </ul>
+          </div>
+          <span class="btn-group"  style="float: right">
+            <a class="btn btn-default" href=# name="published_switch" id=published-switch>{% if form.status.data=='Published' %}Unpublish{% else %}Publish{% endif %}</a>
+            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
+          </span>
+        {% else %}
+          <span class="btn-group"  style="float: right">
+            <input type="submit" class="btn btn-default" onclick="" name="submit" value="Save">
+            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Publish & Close">
+            <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
+          </span>
+        {% endif %}
         <br><br>
         <div><b>What am I called?</b><span name="post_status" style="float: right; font-weight: bold" id="post_status">Status: {{ form.status.data }}</span></div>
         <input type="text" class="form-control" name="title" id="title" value="{{ form.title.data }}"><br>
         <div><b>Tell me a story</b></div>
         <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
-        <p><a class="btn btn-default" href=# id=quick-submit>Quick Save</a>
+        <p>
+          {% if action == 'Edit' %}<a class="btn btn-default" href=# id=quick-submit>Quick Save</a>{% endif %}
         <span class="btn-group"  style="float: right">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span><span id=result></span>

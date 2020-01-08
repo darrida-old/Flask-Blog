@@ -149,17 +149,17 @@ def edit_new():
         else:
             new_post.title = request.form['title']
             new_post.body = request.form['body']
-            new_post.published = (0 if request.form['submit'] == 'Save Draft' else 1)
+            new_post.published = (0 if request.form['submit'] == 'Save' else 1)
             db.session.add(new_post)
             db.session.flush()
             db.session.refresh(new_post)
             db.session.commit()
-            if request.form['submit'] == 'Save Draft':
-                flash('The post has been updated as a draft.')
+            if request.form['submit'] == 'Save':
+                #flash('The post has been updated as a draft.')
                 return redirect(url_for('.edit', id=new_post.activePost_id))
             else:
                 flash('The post has been updated and published.')
-            if request.form['submit'] == 'Publish':
+            if request.form['submit'] == 'Publish & Close':
                 return redirect(url_for('.post', id=new_post.activePost_id))
     form = PostForm()
     form.title.data = new_post.title
