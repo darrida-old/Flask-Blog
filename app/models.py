@@ -20,6 +20,11 @@ class Image(db.Model):
     image = db.Column(db.LargeBinary)
 
 
+class Category(db.Model):
+    __tablename__ = 'categories'
+    id = db.Column(db.Integer, primary_key=True)
+
+
 class Tag(db.Model):
     __tablename__ = 'tags'
     id = db.Column(db.Integer, primary_key=True)
