@@ -57,6 +57,8 @@
             {% endif %}
         </p>
         <h3>Posts by {{ user.username }}</h3>
+        <!--FIXME: This currently shows ALL versions of all posts. Should only
+                   show latest versions that have a published status of true.-->
         {% include '_posts.html' %}
     </div>
 </div>
