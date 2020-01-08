@@ -130,7 +130,7 @@ def moderate_disable(id):
 @permission_required(Permission.WRITE)
 def edit_new():
     # FIXME: If there are no posts in the database, it's questionable whether or not this works. Last time I ran into this I
-    #        quickly manually created a post through the flask shell with an activePost_id of 1.
+    #        had to manually created a post through the flask shell with an activePost_id of 1.
     max_post_id = db.session.query(func.max(Post.activePost_id)).first()[0] + 1
     if max_post_id == None:
         max_post_id == 1
