@@ -6,13 +6,17 @@
 
 {% block page_content %}
 {% include '_posts.html' %}
-<h4 id="comments">Comments</h4>
-{% if current_user.can(Permission.COMMENT) %}
-    <div class="comment-form">
-        {{ wtf.quick_form(form) }}
-    </div>
+<!--FIXME: This is broken in main.view.py. This condition hides the broken feature-->
+{% if current_user.is_administrator() %}
+    <h4 id="comments">Comments</h4>
+    {% if current_user.can(Permission.COMMENT) %}
+        <div class="comment-form">
+            {{ wtf.quick_form(form) }}
+        </div>
+    {% endif %}
+    {% include '_comments.html' %}
 {% endif %}
-{% include '_comments.html' %}
+<!--end of hidden broken section-->
 {% if pagination %}
     <div class="pagination">
         {{ macros.pagination_widget(pagination, '.post', fragment='#comments', id=posts[0].id) }}

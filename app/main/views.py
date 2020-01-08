@@ -57,6 +57,7 @@ def post(id):
         flash('You comment has been published.')
         return redirect(url_for('.post', id=post.id, page=-1))
     page = request.args.get('page', 1, type=int)
+    # FIXME: Comments are BROKEN
     if page == -1:
         page = (post.comments.count() - 1) // \
                 current_app.config['FLASKY_COMMENTS_PER_PAGE'] + 1

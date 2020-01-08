@@ -44,9 +44,12 @@
                         <a href="{{ url_for('.post', id=post.activePost_id) }}">
                             <span class="label label-default">Permalink</span>
                         </a>
-                        <a href="{{ url_for('.post', id=post.id) }}#comments">
-                            <span class="label label-primary">{{ post.comments.count() }} Comments</span>
-                        </a>
+                        <!--FIXME: This is broken in main.view.py. This condition hides the broken feature-->
+                        {% if current_user.is_administrator() %}
+                            <a href="{{ url_for('.post', id=post.id) }}#comments">
+                                <span class="label label-primary">{{ post.comments.count() }} Comments</span>
+                            </a>
+                        {% endif %}
                     </div>
                 </div>
             </li>
