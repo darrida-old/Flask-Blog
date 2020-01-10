@@ -110,7 +110,7 @@ class Post(db.Model):
         if self.published == 1:
             active.post_id = self.id
         #db.session.add(active)
-        if self.activePost_id == 101:
+        if self.activePost_id == 999999:
             new_active = activePost()
             db.session.add(new_active)
             db.session.flush()
