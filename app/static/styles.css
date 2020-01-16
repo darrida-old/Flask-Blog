@@ -7,6 +7,17 @@
     max-width: 750px;
 }
 
+.resp-container {
+    position: relative;
+    overflow: hidden;
+    padding-top: 56.25%;
+}
+
+.test {
+    height:100%; 
+    overflow: visible;
+    }
+
 .fileUpload {
     position: relative;
     overflow: hidden;

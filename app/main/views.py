@@ -1,6 +1,6 @@
 from flask import render_template, redirect, url_for, current_app, \
                   flash, request, make_response, abort, jsonify
-from flask_login import login_required, current_user
+from flask_login import login_required, current_user, login_user
 from flask_sqlalchemy import get_debug_queries
 from sqlalchemy import func
 from . import main
@@ -10,7 +10,6 @@ from ..models import User, Role, Post, Permission, Comment, postTag, activePost
 from ..decorators import admin_required, permission_required
 from datetime import datetime, tzinfo
 from tzlocal import get_localzone
-
 
 
 @main.route('/', methods=['GET', 'POST'])
@@ -296,7 +295,7 @@ def add_numbers():
     return jsonify(result=a + b)
 
 
-@main.route('/_quick_save')
+@main.route('/_quick_save', methods=['GET'])
 @login_required
 @permission_required(Permission.WRITE)
 def quick_save():

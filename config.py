@@ -14,6 +14,7 @@ class Config:
     FLASKY_MAIL_SUBJECT_PREFIX = '[Flasky]'
     FLASKY_MAIL_SENDER = 'Flasky Admin <bentestflask@gmail.com>'
     FLASKY_ADMIN = os.environ.get('FLASKY_ADMIN')
+    BLOGGING_URL_PREFIX = "/blog"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_RECORD_QUERIES = True
     FLASKY_POSTS_PER_PAGE = 20
