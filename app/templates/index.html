@@ -3,8 +3,12 @@
 {% import "_macros.html" as macros %}
 
 {% block title %}Flasky{% endblock %}
-
 {% block page_content %}
+<!-- <div>
+<iframe type="text/html" src="https://app.simplenote.com/p/21bDXP" 
+        style="height: 100vh; width: 750px" frameborder="0"> 
+</iframe>
+</div> -->
 <div class="post-tabs">{% include '_posts.html' %}</div>
 {% if pagination %}
     <div class="pagination">
@@ -16,4 +20,9 @@
 {% block scripts %}
 {{ super() }}
 {{ pagedown.include_pagedown() }}
+<script>
+        var iframeSize = Math.max( document.documentElement.clientHeight,
+                                   document.documentElement.scrollHeight,
+                                   document.documentElement.offsetHeight );
+</script>
 {% endblock %}

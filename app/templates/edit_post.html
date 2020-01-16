@@ -17,7 +17,7 @@
 <!--TEST HEAD CONTENT-->
 
 <div class="page-header">
-    <h1>{{ action }} Post</h1>
+    <!-- <h1>{{ action }} Post</h1> -->
     {% if action == 'Edit' %}
       <div> Revision: </span><span id=version_number>{{ version_number }}</span> | <span name="post_date" id="post_date"> {% if post %}Created: {{ moment(post.timestamp).format('YYYY/MM/DD, h:mm A') }} | Last edit: {{ moment(post.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}{% endif %}</span></div>
     {% endif %}
