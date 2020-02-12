@@ -16,35 +16,23 @@ from tzlocal import get_localzone
 @main.route('/', methods=['GET', 'POST'])
 def index():
     page = request.args.get('page', 1, type=int)
-    ############## Can probably get rid of code between HERE...
-    show_followed = False
-    if current_user.is_authenticated:
-        show_followed = bool(request.cookies.get('show_followed', ''))
-    if show_followed:
-        query = current_user.followed_posts
-    ############## ...and HERE
-    else:
-        active_posts_query = db.session.query(func.max(Post.id)) \
-                                              .group_by(Post.activePost_id)# \
-#CLEAN Remove this eventually
-                                              #.filter(Post.published==True) REMOVED 12/31/19
-        post_list = []
-        for tuple in active_posts_query:
-            for item in tuple:
-                post_list.append(item)
-        query = db.session.query(Post).filter(Post.id.in_((post_list))).filter(Post.published==True)
+    active_posts_query = db.session.query(func.max(Post.id)) \
+                                            .group_by(Post.activePost_id)
+    post_list = []
+    for tuple in active_posts_query:
+        for item in tuple:
+            post_list.append(item)
+    query = db.session.query(Post).filter(Post.id.in_((post_list))).filter(Post.published==True)
     pagination = query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
     posts = pagination.items
     return render_template('index.html', posts=posts,
-                           show_followed=show_followed, pagination=pagination)#,
-                           #form=form)
+                           show_followed=show_followed, pagination=pagination)
 
 
 @main.route('/post/<int:id>', methods=['GET', 'POST'])
 def post(id):
-    #post = Post.query.get_or_404(id)
     url_post_id = db.session.query(func.max(Post.id)).filter(Post.activePost_id==id).first()
     post = Post.query.get_or_404(url_post_id)
     form = CommentForm()
@@ -75,8 +63,6 @@ def search(id):
     form = CommentForm()
     if form.validate_on_submit():
         search_entry = Post.query.title('*' + form.search.data + '*')
-        #db.session.add(comment)
-        #db.session.commit()
         flash('You comment has been published.')
         return redirect(url_for('.search_results', id=post.id, page=-1))
     page = request.args.get('page', 1, type=int)
@@ -156,7 +142,6 @@ def edit_new():
             db.session.refresh(new_post)
             db.session.commit()
             if request.form['submit'] == 'Save':
-                #flash('The post has been updated as a draft.')
                 return redirect(url_for('.edit', id=new_post.activePost_id))
             else:
                 flash('The post has been updated and published.')
@@ -177,8 +162,6 @@ def edit_new():
 @permission_required(Permission.WRITE)
 def edit(id):
     form = None
-    #post = Post.query.get_or_404(id)
-    #url_id = activePost.query.filter_by(id=id).first()
     url_post_id = db.session.query(func.max(Post.id)).filter(Post.activePost_id==id).first()
     post = Post.query.get_or_404(url_post_id)
     if post.id == None:
@@ -186,7 +169,7 @@ def edit(id):
         return redirect(url_for('.manage_posts'))
     #else:
     #    post = Post.query.filter_by(id=url_id.post_id).first()
-#CLEAN I think I can use "history" to count versions rather than the "versions" query further below (thus only don't 1 query instead of 2)
+#CLEAN I think I can use "history" to count versions rather than the "versions" query further below (thus only do 1 query instead of 2)
 #      Actually, I can probably use the html string creation from the "draft_save" function below and get rid of interating with jinja2 altogther
     history = Post.query.filter(Post.activePost_id==id).filter(Post.id != url_post_id[0]).order_by(Post.timestamp_edited.desc()).all()
     new_post = Post(title=post.title, 
@@ -288,13 +271,6 @@ def edit_history(id):
     return render_template('edit_post_history.html', action=action, form=form, timestamp=post.timestamp_edited, id=id)
 
 
-@main.route('/_add_numbers')
-def add_numbers():
-    a = request.args.get('a', 0, type=int)
-    b = request.args.get('b', 0, type=int)
-    return jsonify(result=a + b)
-
-
 @main.route('/_quick_save')
 @login_required
 @permission_required(Permission.WRITE)
@@ -387,8 +363,6 @@ def draft_save():
                            + f"| Last edit: {post.timestamp_edited.strftime('%Y/%m/%d, %I:%M %p')}",
                    version_number=version_number,
                    history=history_html)
-                   #timestamp_edited=post.timestamp_edited)
-        #result="Last save: " + str(datetime.now().strftime("%I:%M:%S")))
 
 
 @main.route('/manage', methods=['GET', 'POST'])
@@ -398,25 +372,21 @@ def manage_posts():
     page = request.args.get('page', 1, type=int)
     show_followed = False
     if current_user.is_authenticated:
-        show_followed = False#bool(request.cookies.get('show_followed', ''))
+        show_followed = False
     active_posts_query = db.session.query(func.max(Post.id)) \
-                                              .group_by(Post.activePost_id)# \
-#CLEAN Remove this eventually
-                                              #.filter(Post.published==True) REMOVED 12/31/19
+                                              .group_by(Post.activePost_id)
     post_list = []
     for tuple in active_posts_query:
         for item in tuple:
             post_list.append(item)
     query = db.session.query(Post).filter(Post.id.in_((post_list)))#.filter(Post.published==True)
-    
-    #query = Post.query
+
     pagination = query.order_by(Post.timestamp.desc()).paginate(
             page, per_page=current_app.config['FLASKY_POSTS_PER_PAGE'],
             error_out=False)
     posts = pagination.items
     return render_template('manage_posts.html', posts=posts,
-                           show_followed=show_followed, pagination=pagination)#,
-                           #form=form)
+                           show_followed=show_followed, pagination=pagination)
 
     
 @main.route('/user/<username>')
@@ -448,11 +418,8 @@ def edit_profile():
 @login_required
 @admin_required
 def edit_profile_admin(id):
-    #role_choices = [(roles.id, roles.name)
-    #                         for roles in Role.query.order_by(Role.name).all()]
     user = User.query.get_or_404(id)
     form = EditProfileAdminForm(user=user)
-    #form.role.choices = role_choices
     if form.validate_on_submit():
         user.email = form.email.data
         user.username = form.username.data
@@ -475,74 +442,6 @@ def edit_profile_admin(id):
     return render_template('edit_profile.html', form=form, user=user)
 
 
-@main.route('/follow/<username>')
-@login_required
-@permission_required(Permission.FOLLOW)
-def follow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    if current_user.is_following(user):
-        flash('You are already following this user.')
-        return redirect(url_for('.user', username=username))
-    current_user.follow(user)
-    db.session.commit()
-    flash('You are now following %s.' % username)
-    return redirect(url_for('.user', username=username))
-
-
-@main.route('/unfollow/<username>')
-@login_required
-@permission_required(Permission.FOLLOW)
-def unfollow(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    if not current_user.is_following(user):
-        flash('You are not following this user.')
-        return redirect(url_for('.user', username=username))
-    current_user.unfollow(user)
-    db.session.commit()
-    flash('You are not following %s anymore.' % username)
-    return redirect(url_for('.user', username=username))
-
-
-@main.route('/followers/<username>')
-def followers(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    page = request.args.get('page', 1, type=int)
-    pagination = user.followers.paginate(
-            page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-            error_out=False)
-    follows = [{'user': item.follower, 'timestamp': item.timestamp}
-               for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followers of",
-                           endpoint='.followers', pagination=pagination,
-                           follows=follows)
-
-
-@main.route('/followed_by/<username>')
-def followed_by(username):
-    user = User.query.filter_by(username=username).first()
-    if user is None:
-        flash('Invalid user.')
-        return redirect(url_for('.index'))
-    page = request.args.get('page', 1, type=int)
-    pagination = user.followed.paginate(
-        page, per_page=current_app.config['FLASKY_FOLLOWERS_PER_PAGE'],
-        error_out=False)
-    follows = [{'user': item.followed, 'timestamp': item.timestamp}
-               for item in pagination.items]
-    return render_template('followers.html', user=user, title="Followed by",
-                           endpoint='.followed_by', pagination=pagination,
-                           follows=follows)
-
-
 @main.route('/all')
 @login_required
 def show_all():
@@ -558,12 +457,12 @@ def show_followed():
     resp.set_cookie('show_followed', '1', max_age=30*24*60*60)  # 30 days
     return resp
 
-@main.route('/shutdown')
-def server_shutdown():
-    if not current_app.testing:
-        abort(404)
-    shutdown = request.environ.get('werkzeug.server.shutdown')
-    if not shutdown:
-        abort(500)
-    shutdown()
-    return 'Shutting down...'
+# @main.route('/shutdown')
+# def server_shutdown():
+#     if not current_app.testing:
+#         abort(404)
+#     shutdown = request.environ.get('werkzeug.server.shutdown')
+#     if not shutdown:
+#         abort(500)
+#     shutdown()
+#     return 'Shutting down...'
