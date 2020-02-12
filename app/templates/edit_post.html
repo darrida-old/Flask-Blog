@@ -38,9 +38,9 @@
                       redundant ways to populate this dropdown--> 
               {% for version in history %}
                 {% if version.id != form.id %}
-                <li><a data-toggle="modal" href="#myModal{{ version.id }}">
+                <li><!--<a data-toggle="modal" href="#myModal{{ version.id }}"> -->
                   <a href="{{ url_for('.edit_history', id=version.id) }}" target="_blank">{{ moment(version.timestamp_edited).format('YYYY/MM/DD, h:mm A') }}</a>
-                </a></li>
+                </li>
                 {% endif %}
               {% endfor %}
             </ul>
@@ -60,7 +60,7 @@
         <div><b>What am I called?</b><span name="post_status" style="float: right; font-weight: bold" id="post_status">Status: {{ form.status.data }}</span></div>
         <input type="text" class="form-control" name="title" id="title" value="{{ form.title.data }}"><br>
         <div><b>Tell me a story</b></div>
-        <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
+        <textarea class="form-control" id="markdown" name="body">{{ form.body.data }}</textarea>
         <p>
           {% if action == 'Edit' %}<a class="btn btn-default" href=# id=quick-submit>Quick Save</a>{% endif %}
         <span class="btn-group"  style="float: right">

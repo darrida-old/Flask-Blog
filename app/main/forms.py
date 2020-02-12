@@ -12,7 +12,7 @@ class PostForm(FlaskForm):
     post_type = HiddenField('post type: ')
     active_post = HiddenField('active_post: ')
     title = StringField('Title', validators=[DataRequired()])
-    body = TextAreaField("What's on your mind?")
+    body = StringField("What's on your mind?")
     status = HiddenField('Status: ')
     #body = PageDownField("What's on your mind?", validators=[Required()])
     submit = SubmitField('Submit')
