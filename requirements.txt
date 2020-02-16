@@ -48,7 +48,8 @@ pexpect==4.7.0
 pickleshare==0.7.5
 pip-upgrader==1.4.15
 prompt-toolkit==2.0.10
-psycopg2==2.8.4
+#psycopg2==2.8.4
+psycopg2-binary
 ptyprocess==0.6.0
 Pygments==2.4.2
 pylint==2.4.4

@@ -1,0 +1,14 @@
+FROM python:3.8.1-slim-buster
+ENV FLASK_APP flasky.py
+ENV FLASK_CONFIG docker
+ENV PYTHONPATH "${PYTHONPATH}:/home/app"
+WORKDIR /home/app
+COPY requirements.txt requirements.txt
+RUN pip install -r requirements.txt
+COPY . /home/app/
+COPY flasky.py config.py boot.sh /home/app/
+ENV FLASK_ENV development
+CMD ['/home/app/tools/ubuntu-config.sh']
+# runtime configuration
+# EXPOSE 5000
+CMD ["flask", "run", "--host", "0.0.0.0"]
