@@ -19,7 +19,7 @@
         <div><b>What am I called?</b><span name="post_status" style="float: right"><b>Status: {{ form.status.data }}</b></span></div>
         <input type="text" class="form-control" name="title" value="{{ form.title.data }}"><br>
         <b>Tell me a story</b>
-        <textarea class="form-control" id="markdown" name="body" value={{ form.body }}
+        <textarea class="form-control" id="markdown" name="body">{{ form.body.data }}</textarea>
         <span class="btn-group"  style="float: right">
             <input type="submit" class="btn btn-default" onclidk="" name="submit" value="Close">
         </span><span id=result></span>
