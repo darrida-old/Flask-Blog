@@ -1,12 +1,26 @@
+/* GENERAL FORMAT MODIFICATIONS */
 .container {
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
     margin-left: auto;
     padding-top: 0px;
-    max-width: 750px;
+    max-width: 870px;
+}
+br {
+    line-height: 150%;
+} 
+p {
+    line-height: 130%;
+    margin-top: 12px;
+    margin-bottom: 12px;
+}
+span.right-align {
+    text-align: right;
 }
 
+
+/* FILE UPLOAD */
 .fileUpload {
     position: relative;
     overflow: hidden;
@@ -24,6 +38,8 @@
     filter: alpha(opacity=0);
 }
 
+
+/* PAGE HEADER */
 .navbar {
     margin-bottom: 0px;
 }
@@ -32,15 +48,16 @@
     margin: 10px 0 20px;
     border-bottom: 1px solid #eee;
 }
+
+
+/* IMAGE FORMATTING */
 img[src*="post-image-large"] {
    max-width:625px;
 }
-
 img[src*="post-image-width"] {
     width:90%; /* Fallback incase the browser doesn't support */
     width:calc(100% - 24px); /* This will calculate the 100% viewport height minus 50px */
 }
-
 .profile-thumbnail {
     position: absolute;
 }
@@ -48,49 +65,9 @@ img[src*="post-image-width"] {
     min-height: 260px;
     margin-left: 280px;
 }
-div.post-tabs {
-    margin-top: 16px;
-}
-ul.posts {
-    list-style-type: none;
-    padding: 0px;
-    margin: 16px 0px 0px 0px;
-    border-top: 1px solid #e0e0e0;
-}
-span.right-align {
-  text-align: right;
-}
-div.post-tabs ul.posts {
-    margin: 0px;
-    border-top: none;
-}
-ul.posts li.post {
-    padding: 8px;
-    border-bottom: 1px solid #e0e0e0;
-}
-ul.posts li.post:hover {
-    background-color: #f0f0f0;
-}
-div.post-date {
-    float: right;
-}
-div.post-author {
-    font-weight: bold;
-}
-div.post-title {
-    font-size: 120%;
-    font-weight: bold;
-}
-div.post-thumbnail {
-    position: absolute;
-}
-div.post-content {
-    margin-left: 48px;
-    min-height: 48px;
-}
-div.post-footer {
-    text-align: right;
-}
+
+
+/* COMMENTS FORMATTING */
 ul.comments {
     list-style-type: none;
     padding: 0px;
@@ -119,16 +96,23 @@ div.comment-thumbnail {
 div.comment-content {
     margin-left: 48px;
     min-height: 48px;
+    line-height: 20px;
 }
 div.comment-form {
     margin: 16px 0px 16px 32px;
 }
+
+
+/* PAGINATION FORMATTING */
 div.pagination {
     width: 100%;
     text-align: right;
     padding: 0px;
     margin: 0px;
 }
+
+
+/* FLASK SPECIFIC FORMATTING */
 div.flask-pagedown-preview {
     margin: 10px 0px 10px 0px;
     border: 1px solid #e0e0e0;
@@ -143,14 +127,71 @@ div.flask-pagedown-preview h2 {
 div.flask-pagedown-preview h3 {
     font-size: 120%;
 }
+
+
+/* POST FORMATTING */
 .post-body h1 {
     font-size: 140%;
+    line-height: 20px;
+    margin-top: 30px;
 }
 .post-body h2 {
     font-size: 130%;
+    line-height: 20px;
+    margin-top: 30px;
 }
 .post-body h3 {
     font-size: 120%;
+    line-height: 20px;
+    margin-top: 30px;
+}
+.post-body {
+    line-height: 25px;
+    font-size: 120%;
+}
+pre {
+    margin-bottom: 30px;
+}
+div.post-tabs ul.posts {
+    margin: 0px;
+    border-top: none;
+}
+ul.posts li.post {
+    padding: 8px;
+    border-bottom: 1px solid #e0e0e0;
+}
+ul.posts li.post:hover {
+    background-color: #f0f0f0;
+}
+div.post-date {
+    float: right;
+}
+div.post-author {
+    font-weight: bold;
+}
+div.post-title {
+    font-size: 200%;
+    font-weight: bold;
+}
+div.post-thumbnail {
+    position: absolute;
+}
+div.post-content {
+    margin-left: 48px;
+    min-height: 48px;
+    margin-right: 48px;
+}
+div.post-footer {
+    text-align: right;
+}
+div.post-tabs {
+    margin-top: 16px;
+}
+ul.posts {
+    list-style-type: none;
+    padding: 0px;
+    margin: 16px 0px 0px 0px;
+    border-top: 1px solid #e0e0e0;
 }
 .table.followers tr {
     border-bottom: 1px solid #e0e0e0;
