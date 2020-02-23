@@ -18,7 +18,7 @@
                             <a href="{{ url_for('.post', id=post.activePost_id) }}">{{ post.title }}</a>
                         {% else %}{% endif %}
                     </div>
-                    <br>
+                    <br>                   
                     <div class="post-body">
                         {% if post.body_html %}
                             {{ post.body_html | safe }}
