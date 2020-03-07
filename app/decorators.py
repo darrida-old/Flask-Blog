@@ -1,12 +1,8 @@
-import os
-import click
-from flask_migrate import Migrate
-from app import create_app, db
-from app.models import User, Role, Permission
+from app.models import Permission
 from flask import abort
 from functools import wraps
 from flask_login import current_user
-  
+
 
 def permission_required(permission):
     def decorator(f):

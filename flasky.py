@@ -1,3 +1,5 @@
+"""Intializes entire Flask application."""
+
 import os
 
 COV = None
@@ -10,7 +12,8 @@ import sys
 import click
 from flask_migrate import Migrate, upgrade
 from app import create_app, db
-from app.models import User, Follow, Role, Permission, Post, Comment, Tag, postTag, activePost
+from app.models import User, Follow, Role, Permission, Post, Comment, \
+    Tag, postTag, activePost
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 migrate = Migrate(app, db)
@@ -18,9 +21,26 @@ migrate = Migrate(app, db)
 
 @app.shell_context_processor
 def make_shell_context():
-    return dict(db=db, User=User, Follow=Follow, Role=Role,
-                Permission=Permission, Post=Post, Comment=Comment, Tag=Tag,
-                postTag=postTag, activePost=activePost)
+    """Make model classes available to the Flask shell.
+
+    Returns:
+        type (dict): Contains model classes
+
+    """
+    return {'db': db,
+            'User': User,
+            'Follow': Follow,
+            'Role': Role,
+            'Permission': Permission,
+            'Post': Post,
+            'Comment': Comment,
+            'Tag': Tag,
+            'postTag': postTag,
+            'activePost': activePost}
+
+    # dict(db=db, User=User, Follow=Follow, Role=Role,
+    #             Permission=Permission, Post=Post, Comment=Comment, Tag=Tag,
+    #             postTag=postTag, activePost=activePost)
 
 
 @app.cli.command()
@@ -70,14 +90,6 @@ def deploy():
     """Run deployment tasks."""
     # migrate database to latest revision
     upgrade()
-    #try:
-    #    upgrade()
-    #except:
-    #    from app import db
-    #    db.create_all()
-    #    db.session.commit()
-    #    os.system("flask db init")
-    #    upgrade()
 
     # create or update user roles
     Role.insert_roles()
