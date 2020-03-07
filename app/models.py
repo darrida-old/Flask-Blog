@@ -100,7 +100,7 @@ class Post(db.Model):
         db.session.add(active)
         db.session.commit()
 
-# I really should have documented what I made this for!!!
+# TODO Document what this function is used for
 # It's causing problems and I can't remember what it does (or if I'm replicating
 # it's purpose elsewhere now...)
     def edit_post_active_ind(self):
