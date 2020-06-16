@@ -145,7 +145,7 @@ class Post(db.Model):
         db.session.commit()
         
     def to_json(self):
-        json_post = {
+        return {
             'url': url_for('api.get_post', id=self.id),
             'body': self.body,
             'body_html': self.body_html,
@@ -154,7 +154,6 @@ class Post(db.Model):
             'comments_url': url_for('api.get_post_comments', id=self.id),
             'comment_count': self.comments.count()
         }
-        return json_post
     
     @staticmethod
     def from_json(json_post):
@@ -191,7 +190,7 @@ class Comment(db.Model):
         
         
     def to_json(self):
-        json_comment = {
+        return {
             'url': url_for('api.get_comment', id=self.id),
             'post_url': url_for('api.get_post', id=self.post_id),
             'body': self.body,
@@ -199,7 +198,6 @@ class Comment(db.Model):
             'timestamp': self.timestamp,
             'author_url': url_for('api.get_user', id=self.author_id)
         }
-        return json_comment
     
     
     @staticmethod
@@ -271,12 +269,12 @@ class Role(db.Model):
                               Permission.ADMIN]
         }
         default_role = 'User'
-        for r in roles:
+        for r, value in roles.items():
             role = Role.query.filter_by(name=r).first()
             if role is None:
                 role = Role(name=r)
             role.reset_permissions()
-            for perm in roles[r]:
+            for perm in value:
                 role.add_permission(perm)
             role.default = (role.name == default_role)
             db.session.add(role)
@@ -312,18 +310,17 @@ class User(UserMixin, db.Model):
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
+        if self.role is None and self.email == current_app.config['FLASKY_ADMIN']:
+            self.role = Role.query.filter_by(name='Administrator').first()
         if self.role is None:
-            if self.email == current_app.config['FLASKY_ADMIN']:
-                self.role = Role.query.filter_by(name='Administrator').first()
-            if self.role is None:
-                self.role = Role.query.filter_by(default=True).first()
+            self.role = Role.query.filter_by(default=True).first()
         if self.email is not None and self.avatar_hash is None:
             self.avatar_hash = self.gravatar_hash()
         self.follow(self)
         
     
     def to_json(self):
-        json_user = {
+        return {
             'url': url_for('api.get_user', id=self.id),
             'username': self.username,
             'member_since': self.member_since,
@@ -333,7 +330,6 @@ class User(UserMixin, db.Model):
                                           id=self.id),
             'post_count': self.posts.count()
         }
-        return json_user
     
          
     @property

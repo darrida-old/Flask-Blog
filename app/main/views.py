@@ -164,7 +164,7 @@ def edit(id):
     form = None
     url_post_id = db.session.query(func.max(Post.id)).filter(Post.activePost_id==id).first()
     post = Post.query.get_or_404(url_post_id)
-    if post.id == None:
+    if post.id is None:
         flash('Post not found')
         return redirect(url_for('.manage_posts'))
     #else:
@@ -181,9 +181,9 @@ def edit(id):
     db.session.flush()
     db.session.refresh(new_post)
     current = post.id
-    
+
     if current_user != post.author and not current_user.can(Permission.ADMIN):
-        abort(403)   
+        abort(403)
     if request.method=='POST' and request.form['submit']=='Close':
         flash('The post was not updated.')
         db.session.rollback()
@@ -222,7 +222,7 @@ def edit(id):
     #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
     versions = Post.query.filter_by(activePost_id=post.activePost_id).all()
     version_number = 0
-    for version in versions:
+    for _ in versions:
         version_number += 1
     #END
     return render_template('edit_post.html', action=action, form=form,
@@ -238,11 +238,11 @@ def edit(id):
 def edit_history(id):
     form = None
     post = Post.query.get_or_404(id)
-    if post.id == None:
+    if post.id is None:
         flash('Post not found')
         return redirect(url_for('.manage_posts'))
     if current_user != post.author and not current_user.can(Permission.ADMIN):
-        abort(403)   
+        abort(403)
     if request.method=='POST' and request.form['submit']=='Close':
         return redirect(url_for('.manage_posts'))
     elif request.method=='POST' and current_user.can(Permission.WRITE):
@@ -301,7 +301,7 @@ def published_switch():
     db.session.commit()
     versions = Post.query.filter_by(activePost_id=post.activePost_id).all()
     number = 0
-    for version in versions:
+    for _ in versions:
         number += 1
     print(number)
     publish_switch = ("Unpublish" if post.published==1 else "Publish")
@@ -324,7 +324,7 @@ def draft_save():
     new_post_version.published=(False if request.args.get('published_status', 0, type=str)==False else True)
     new_post_version.title=request.args.get('post_title', 0, type=str)
     new_post_version.body=request.args.get('post_body', 0, type=str)
-    new_post_version.activePost_id=max_post_id  
+    new_post_version.activePost_id=max_post_id
     new_post_version.author=current_user._get_current_object()
     new_post_version.timestamp=datetime.utcnow()
     new_post_version.timestamp_edited=datetime.utcnow()
@@ -336,19 +336,20 @@ def draft_save():
     history = Post.query.filter(Post.activePost_id==new_post_version.activePost_id).filter(Post.id != new_post_version.id).order_by(Post.timestamp_edited.desc()).all()
     history_html = """"""
     for item in history:
-        history_html = history_html + f"""
+        history_html += f"""
             <li><a data-toggle="modal" href="#myModal{item.id}"></a>
                 <a href="/history/{item.id}" target="_blank">
                     <span class="" data-refresh="0" style="">{item.timestamp_edited.strftime('%Y/%m/%d, %I:%M %p')}</span>
                 </a>
             </li>"""
+
     #END
     #BEGIN Counts number number of revisions that exist for this post - displays total as the "current" revision number
     #TODO Can use info from here to reduce this to one line:
     #     https://stackoverflow.com/questions/34692571/how-to-use-count-in-flask-sqlalchemy to 
     versions = Post.query.filter_by(activePost_id=new_post_version.activePost_id).all()
     version_number = 0
-    for version in versions:
+    for _ in versions:
         version_number += 1
     #END
     post_id=new_post_version.id
