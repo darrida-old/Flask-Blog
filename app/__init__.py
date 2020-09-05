@@ -49,6 +49,6 @@ def create_app(config_name):
 
         return app
     except KeyError as e:
-        if e.startswith('<flask.cli.ScriptInfo object'):
+        if str(e).startswith('<flask.cli.ScriptInfo object'):
             print('Environmental variables may not be initialzied.\n \
                 Try using scripts in \'tools\' directory first.')
